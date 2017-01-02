@@ -34,6 +34,54 @@
 
 ###1.3 特性分析列表
 ###1.4 类型分析列表
+####[类型]common_request
+* 公共成员
+    + request_type
+    + request_args
+    + response
+* 公共接口
+    + write_response(rsp)
+    
+####[类型]component_request(common_request)
+* 公共成员
+    + component_name
+* 公共接口
+    + write_response(rsp)
+    
+####[类型]template_request(common_request)
+* 公共成员
+    + template_name
+* 公共接口
+    + write_response(rsp)
+    
+####[类型]tcp_server(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
+* 公共接口：
+    + \_\_init\_\_(server_config)
+    + serve()
+    + distroy()
+
+####[类型]request_handler(BaseHTTPServer.BaseHTTPRequestHandler)
+* 公共成员
+    + tm_handler
+    + cm_handler
+    + dist
+    + merger
+* 公共接口：
+    + \_\_init\_\_(handler_config)
+    + handle_request()
+
+####[类型]distributor
+* 公共成员
+    + tmpl_map
+    + cmpt_map
+* 公共接口
+    + \_\_init\_\_(tmpl_conf_f, cmpt_map_f)
+    + distribute(comm_request)
+
+####[类型]sm_merger
+* 公共接口
+     + merge(tmpl_req, cmpt_req)
+
 ###1.5 周边模块关系
 ---
 ##2 模板管理
@@ -155,7 +203,7 @@ Today is {var "date_d"}
 * 描述
     + 文件日志系统
     + 对logging模块的封装
-* 对外接口
+* 公共接口
     + init_logger(conf)
         + 初始化日志模块
         + 输入conf：文件路径、日志规模、默认等级等
