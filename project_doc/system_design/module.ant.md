@@ -34,7 +34,7 @@
 
 ###1.3 特性分析列表
 ###1.4 类型分析列表
-####[类型]common_request
+####[类型]CommonRequest
 * 公共成员
     + request_type
     + request_args
@@ -42,43 +42,67 @@
 * 公共接口
     + write_response(rsp)
     
-####[类型]component_request(common_request)
+####[类型]ComponentRequest(CommonRequest)
 * 公共成员
     + component_name
 * 公共接口
     + write_response(rsp)
     
-####[类型]template_request(common_request)
+####[类型]TemplateRequest(CommonRequest)
 * 公共成员
     + template_name
 * 公共接口
     + write_response(rsp)
     
-####[类型]tcp_server(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
-* 公共接口：
+####[类型]TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer)
+* 公共接口
     + \_\_init\_\_(server_config)
     + serve()
     + distroy()
 
-####[类型]request_handler(BaseHTTPServer.BaseHTTPRequestHandler)
+####[类型]RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler)
 * 公共成员
-    + tm_handler
-    + cm_handler
     + dist
     + merger
-* 公共接口：
+* 公共接口
     + \_\_init\_\_(handler_config)
     + handle_request()
 
-####[类型]distributor
+####[类型]InternalTask
 * 公共成员
+    + task_name
+    + request_list
+    + result_stack
+    + fail_num
+    + task_type
+    + timer_info
+* 公共接口
+    + \_\_init\_\_(task_config)
+    + push_result(response)
+    
+####[类型]CyclicTaskManager
+* 公共成员
+    + task_list
+    + cyclic_status
+    + dist
+* 公共接口
+    + \_\_init\_\_(manager_config)
+    + start_all_task()
+    + reg_task(task_l)
+    + rmv_task(task_name)
+    + get_status(task_name)
+
+####[类型]Distributor
+* 公共成员
+    + tm_handler
     + tmpl_map
+    + cm_handler
     + cmpt_map
 * 公共接口
     + \_\_init\_\_(tmpl_conf_f, cmpt_map_f)
     + distribute(comm_request)
 
-####[类型]sm_merger
+####[类型]SmMerger
 * 公共接口
      + merge(tmpl_req, cmpt_req)
 
@@ -199,7 +223,7 @@ Today is {var "date_d"}
 ##4 公共模块列表
 ---
 ###4.1 日志模块[rsp_log]
-* [类型]Logger
+####[类型]Logger
 * 描述
     + 文件日志系统
     + 对logging模块的封装
