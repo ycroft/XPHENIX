@@ -4,6 +4,7 @@
 ---
 ###1.1 背景
 访问控制是整个系统的消息入口和出口，是内部所有模块的对外屏障，也是模板模块和组件模块的“中间人”。它既保障了请求资源的定位，也实现了对静态资源和动态资源的整合和出口。
+
 ###1.2 功能概述
 
 ####1.2.1 一个TCP服务器
@@ -92,7 +93,7 @@
     + rmv_task(task_name)
     + get_status(task_name)
 
-####[类型]Distributor
+####[类型]Dispatcher
 * 公共成员
     + tm_handler
     + tmpl_map
@@ -100,7 +101,7 @@
     + cmpt_map
 * 公共接口
     + \_\_init\_\_(tmpl_conf_f, cmpt_map_f)
-    + distribute(comm_request)
+    + dispatch(comm_request)
 
 ####[类型]SmMerger
 * 公共接口
