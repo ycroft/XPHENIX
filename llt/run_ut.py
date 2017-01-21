@@ -10,4 +10,3 @@ from ut.ant_controller_test import *
 
 unittest.main()
 
-# python -m unittest discover -s './ut/' -p "*_test.py"

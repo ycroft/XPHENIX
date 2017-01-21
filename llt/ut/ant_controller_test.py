@@ -11,3 +11,4 @@ class TestTcpServer(unittest.TestCase):
             'handler': RequestHandler,
         })
         self.assertEqual(0, 0)
+

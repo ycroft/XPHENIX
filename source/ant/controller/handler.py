@@ -49,3 +49,4 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     
     def write_context(self, response_str):
         self.wfile.write(response_str)
+

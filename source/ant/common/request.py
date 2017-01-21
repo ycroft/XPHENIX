@@ -9,3 +9,4 @@ class CommonRequest(object):
     
     def set_var(self, var_list):
         self.var_list = var_list
+

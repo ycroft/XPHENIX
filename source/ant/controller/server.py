@@ -7,7 +7,8 @@ import SocketServer
 class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     '''Tcp服务器
 
-    一个多线程TCP服务器，继承TreadingMixIn用于实现多线程，重载相关函数和实现方法详见Socketerver.py
+    一个多线程TCP服务器，继承TreadingMixIn用于实现多线程，重载相关函数和实现方
+    法详见Socketerver.py
 
     Attributes:
         address: 服务器地址
@@ -43,8 +44,9 @@ class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def finish_request(self, request, client_address):
         '''处理一次请求
 
-        通过实例化Handler类型处理请求，BaseHttpRequestHandler类型会在实例化完成后自动调用handle()函数
-        处理一次请求。该函数在被process_request函数调用，该函数被ThreadingMixIn类型以多线程方式重新实现
+        通过实例化Handler类型处理请求，BaseHttpRequestHandler类型会在实例化完成
+        后自动调用handle()函数处理一次请求。该函数在被process_request函数调用，
+        该函数被ThreadingMixIn类型以多线程方式重新实现
 
         Args:
             request: http请求
