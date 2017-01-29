@@ -1,15 +1,16 @@
+# coding: utf-8
 
-from ant.common.error improt *
+from ant.common.error import *
 import re
 
 class PATTERN:
     '''正则表达式
     '''
-    TAG = r'\{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}\}$'       # 匹配标签
+    TAG = r'{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}\n'       # 匹配标签
     
     r_CHILD = re.compile(r'\{ac\}')                     # 子模板嵌入标签
 
-    r_NAME = re.compile(TAG.format(tag='name')          # 模板名称标签
+    r_NAME = re.compile(TAG.format(tag='name'))         # 模板名称标签
     r_INSERT = re.compile(TAG.format(tag='insert'))     # 模板嵌入标签
 
 class Mod(object):
@@ -34,6 +35,8 @@ class Mod(object):
         
         self.var_ele_list = {}
 
+        self.parse_file(file_path)
+
     def _search_tag_name(self):
         '''搜索名字标签
 
@@ -44,6 +47,7 @@ class Mod(object):
         Errors:     无
         '''
         match_res = PATTERN.r_NAME.findall(self.context)
+        print match_res
 
         if 0 == len(match_res):                     # 找不到名字定义
             raise TemplateWithoutNameError()
@@ -63,6 +67,8 @@ class Mod(object):
         '''
         match_res = PATTERN.r_CHILD.findall(self.context)
         if 0 == len(match_res):
+            self.child_list = None
+        else:
             self.child_list = []
 
     def _search_tag_insert(self):
@@ -93,6 +99,8 @@ class Mod(object):
         self._search_tag_insert()
 
     def can_be_entry(self):
+        '''判断该模板是否可以作为入口
+        '''
         if None != self.child_list:
             return False
 
@@ -100,4 +108,5 @@ class Mod(object):
             return False
 
         return True
+
 
