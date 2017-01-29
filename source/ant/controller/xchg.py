@@ -58,7 +58,7 @@ class Dispatcher(object):
         self.req_cmpt = ComponentRequest(self.config.get('component', pageName))
         var_list = self.config.get('var_list', pageName).split(',')
 
-        if len(var_list) != len(sres.groups()           # url中的参数个数和配置
+        if len(var_list) != len(sres.groups()):         # url中的参数个数和配置
             raise ConfigParseError()                    # 中的参数个数不匹配
 
         for index, var_name in enumerate(var_list):
