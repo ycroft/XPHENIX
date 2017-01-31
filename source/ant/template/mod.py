@@ -12,6 +12,7 @@ class PATTERN:
     r_NAME = re.compile(TAG.format(tag='name'))         # 模板名称标签
     r_FROM = re.compile(TAG.format(tag='from'))         # 模板继承标签
     r_INSERT = re.compile(TAG.format(tag='insert'))     # 模板嵌入标签
+    r_VAR = re.compile(TAG.format(tag='var'))           # 变量嵌入标签
 
 '''
 
@@ -125,6 +126,19 @@ class Mod(object):
         for ref_name in match_res:
             self.ref_list.append(ref_name)
 
+        self.context = PATTERN.r_INSERT.sub(r'{_insert_\1}', self.context)
+
+    def _search_tag_var(self):
+        '''搜索单变量标签
+
+        单变量标签为{var ***}，正则表达式搜索并文本替换成{var_***}
+
+        Args:       无
+        Returns:    无
+        Errors:     无
+        '''
+        self.context = PATTERN.r_VAR.sub(r'{_var_\1}', self.context)
+
     def parse_file(self, file_path):
         '''解析文件
         '''
@@ -135,6 +149,7 @@ class Mod(object):
         self._search_tag_from()
         self._search_tag_child()
         self._search_tag_insert()
+        self._search_tag_var()
 
     def can_be_entry(self):
         '''判断该模板是否可以作为入口
@@ -166,5 +181,4 @@ class Mod(object):
                 self.refered_by.__repr__(),
                 self.ref_list,
             )
-
 

@@ -22,6 +22,18 @@ class TestMod(unittest.TestCase):
     def test_scanner(self):
         s = Scanner('ut/res/')
         self.assertEqual(4, len(s.mod_dict))
+        '''
         for name, mod in s.mod_dict.items():
             _debug_(mod)
+        _debug_(s.mod_dict['main_page_mod'].context)
+        '''
+
+    def test_manager(self):
+        tm = TemplateManager({
+                'dir': 'ut/res/',
+            })
+        self.assertEqual(4, len(tm.mod_dict))
+        '''
+        _debug_(tm.mod_dict)
+        '''
         

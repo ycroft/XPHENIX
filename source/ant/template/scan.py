@@ -12,10 +12,10 @@ class Scanner(object):
     Attributes:
         mod_dict: 模板名称--对象字典
     '''
-    def __init__(self, scan_dir):
+    def __init__(self, scan_dir, res_dict = {}):
         '''初始化时扫描目录
         '''
-        self.mod_dict = {}
+        self.mod_dict = res_dict
         self.scan_mods_text(scan_dir)
         self.scan_mods_ref()
 
@@ -69,6 +69,17 @@ class Scanner(object):
             raise ScannerModRelationError()
 
 class TemplateManager(object):
-    def __init__(self, scanner):
-        pass
+    def __init__(self, tmpl_config):
+        self.mod_dir = tmpl_config['dir']
+        self.mod_dict = {}
+        Scanner(self.mod_dir, self.mod_dict)
+
+    def generate_html(self, name):
+        if not name in self.mod_dict:
+            # debug info
+            return
+
+        if not self.mod_dict[name].can_be_entry():
+            # debug info
+            return
 

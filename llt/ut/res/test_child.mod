@@ -15,5 +15,6 @@
     </table>
     {insert ref_a}
     {insert ref_b}
+    {var test_var}
 </div>
 
