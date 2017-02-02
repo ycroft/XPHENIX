@@ -1,4 +1,4 @@
-{name ref_b}
+{{name ref_b}}
 <div>
     B
 </div>

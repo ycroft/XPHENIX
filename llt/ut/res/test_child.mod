@@ -1,20 +1,20 @@
-{name main}
-{from main_page_mod}
+{{name main}}
+{{from main_page_mod}}
 
 <div>
     world.
     <table>
-        {sl content_var}    
+        {{sl content_var}}    
         <td>
-            {ele date}
+            {{ele date}}
         </td>
         <td>
-            {ele context}
+            {{ele context}}
         </td>
-        {el}
+        {{el}}
     </table>
-    {insert ref_a}
-    {insert ref_b}
-    {var test_var}
+    {{insert ref_a}}
+    {{insert ref_b}}
+    {{var test_var}}
 </div>
 

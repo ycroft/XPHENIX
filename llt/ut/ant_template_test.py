@@ -1,7 +1,7 @@
 import unittest
 
 from ant.template.mod import *
-from ant.template.scan import *
+from ant.template.manager import *
 
 def _debug_(info):
     print '\n'.join([
@@ -22,6 +22,7 @@ class TestMod(unittest.TestCase):
     def test_scanner(self):
         s = Scanner('ut/res/')
         self.assertEqual(4, len(s.mod_dict))
+        print s.generate_html('main')
         '''
         for name, mod in s.mod_dict.items():
             _debug_(mod)
