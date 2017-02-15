@@ -4,70 +4,26 @@
     float: left;
     width: 100%;
     min-height: 30px;
-    margin-left: 2.0833333333333335;
-    margin-top: 10px;
+    margin-left: 2.12765957446808%;
     border: 1px solid black;
     box-sizing: border-box;
 }
 
-.row-container .span1
+.row-container [class*="span"]:first-child
 {
-    width: 6.25%;
+    margin-left: 0px;
 }
 
-.row-container .span2
-{
-    width: 14.583333333333334%;
-}
-
-.row-container .span3
-{
-    width: 22.916666666666668%;
-}
-
-.row-container .span4
-{
-    width: 31.250000000000004%;
-}
-
-.row-container .span5
-{
-    width: 39.583333333333336%;
-}
-
-.row-container .span6
-{
-    width: 47.916666666666664%;
-}
-
-.row-container .span7
-{
-    width: 56.25%;
-}
-
-.row-container .span8
-{
-    width: 64.58333333333334%;
-}
-
-.row-container .span9
-{
-    width: 72.91666666666667%;
-}
-
-.row-container .span10
-{
-    width: 81.25000000000001%;
-}
-
-.row-container .span11
-{
-    width: 89.58333333333334%;
-}
-
-.row-container .span12
-{
-    width: 97.91666666666667%;
-}
-
+.row-container .span1 { width: 6.382978723404255%; }
+.row-container .span2 { width: 14.893617021276595%; }
+.row-container .span3 { width: 23.404255319148938%; }
+.row-container .span4 { width: 31.914893617021278%; }
+.row-container .span5 { width: 40.42553191489362%; }
+.row-container .span6 { width: 48.93617021276596%; }
+.row-container .span7 { width: 57.4468085106383%; }
+.row-container .span8 { width: 65.95744680851064%; }
+.row-container .span9 { width: 74.46808510638297%; }
+.row-container .span10 { width: 82.97872340425532%; }
+.row-container .span11 { width: 91.48936170212765%; }
+.row-container .span12 { width: 100.0%; }
 
