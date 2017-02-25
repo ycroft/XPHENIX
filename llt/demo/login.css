@@ -1,0 +1,13 @@
+
+.login
+{
+    width: 300px;
+    height: 400px;
+    background-color: #FFFFFF;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-68%);
+    box-shadow: #E2E2E2 2px 2px 30px 2px;
+}
+
