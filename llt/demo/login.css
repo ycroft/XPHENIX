@@ -1,0 +1,106 @@
+
+/* BOX DEBUG */
+/*
+div
+{
+    border: solid 1px black;
+}
+*/
+/* BOX DEBUG */
+
+.login
+{
+    width: 220px;
+    height: 340px;
+    padding: 40px;
+    background-color: #FFFFFF;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-68%);
+    box-shadow: #E2E2E2 2px 2px 30px 2px;
+    border-radius: 5px;
+}
+
+.login .title
+{
+    @box-debug;
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 36px;
+    color: #4F7FE8;
+    text-align: center;
+}
+
+.login .white-span
+{
+    width: auto;
+    height: 80px;
+}
+
+.login .input-box
+{
+    width: auto;
+    height: 20px;
+    border-radius: 5px;
+    border: solid 1px #4F7FE8;
+    margin-top: 30px;
+    padding: 4px;
+    box-shadow: #E2E2E2 2px 2px 5px 2px inset;
+}
+
+.login .input-box .input-icon
+{
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    font-size: 14px;
+    line-height: 20px;
+    border-right: solid 1px #4F7FE8;
+}
+
+.input-icon .normal
+{
+    font-size: 14px;
+    text-align: center;
+    line-height: 20px;
+}
+
+.login .button
+{
+    width: 102px;
+    height: 30px;
+    background: linear-gradient(#6892ED, #4F7FE8);
+    margin-top: 30px;
+    line-height: 30px;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.login .signup
+{
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.login .signin
+{
+    margin-left: 10px;
+    margin-right: 0px;
+}
+
+.login .button:hover
+{
+    background: #4F7FE8;
+    /*
+    box-shadow: #E2E2E2 2px 2px 5px 2px inset;
+    color: #4F7FE8;
+    */
+}
+
