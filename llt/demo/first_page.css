@@ -1,4 +1,6 @@
 
+/* a4b7bc */
+
 .header
 {
     width: 100%; 
@@ -26,10 +28,21 @@
     color: #BED0F7;
 }
 
-.main-container
+.banner
 {
+    min-height: 200px;
     margin-top: 20px;
-    min-height: 100px;
     border: solid 1px black;
+}
+
+.container_12 .space
+{
+    height: 30px;
+}
+
+.info-panel
+{
+    height: 400px;
+    background-color: gray;
 }
 
