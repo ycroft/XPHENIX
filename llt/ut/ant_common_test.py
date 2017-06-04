@@ -66,19 +66,15 @@ class TestDbApi(unittest.TestCase):
 
             res = select("user", name='john')
             self.assertEquals(len(res), 1)
-            self.assertEquals(res[0][0], 18)
 
             res = select("user", name='Venoth')
             self.assertEquals(len(res), 1)
-            self.assertEquals(res[0][0], 19)
 
             res = select("user", name='Brown')
             self.assertEquals(len(res), 1)
-            self.assertEquals(res[0][0], 20)
 
             res = select("user", name='Kingdren')
             self.assertEquals(len(res), 1)
-            self.assertEquals(res[0][0], 21)
 
             delete("user")
     
