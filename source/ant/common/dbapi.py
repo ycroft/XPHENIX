@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../../../source/')
-
 import sqlite3
 from ant.common.error import *
 from ant.common.log import *
@@ -12,29 +9,28 @@ class DataBaseField(object):
         pass
 
 class StringField(DataBaseField):
-    def __init__(self, len = 255, is_pk = False):
-        DataBaseField.__init__(self, is_pk)
-        self.str_len = len
+    def __init__(self, **args):
+        DataBaseField.__init__(self, args.get('is_pk', False))
+        self.str_len = args.get('len', 255)
+        self.str_le = len
 
 class TextField(DataBaseField):
-    def __init__(self, is_pk = False):
-        DataBaseField.__init__(self, is_pk)
-        pass
+    def __init__(self, **args):
+        DataBaseField.__init__(self, args.get('is_pk', False))
 
 class NumberField(DataBaseField):
-    def __init__(self, size = 9, is_pk = False):
-        DataBaseField.__init__(self, is_pk)
-        self.size = size
+    def __init__(self, **args):
+        DataBaseField.__init__(self, args.get('is_pk', False))
+        self.size = args.get('size', 255)
 
 class BoolField(DataBaseField):
-    def __init__(self, is_pk = False):
-        DataBaseField.__init__(self, is_pk)
-        pass
+    def __init__(self, **args):
+        DataBaseField.__init__(self, args.get('is_pk', False))
 
 class DateField(DataBaseField):
-    def __init__(self, date_type = 'DATE', is_pk = False):
-        DataBaseField.__init__(self)
-        self.date_type = date_type
+    def __init__(self, **args):
+        DataBaseField.__init__(self, args.get('is_pk', False))
+        self.date_type = args.get('data_type', 'DATA')
 
 class StubConnection(object):
     def connect(self):
@@ -46,7 +42,7 @@ class StubConnection(object):
 
     def get_cursor(self):
         log_debug("return cursor.")
-
+ 
     def execute(self, statement):
         log_debug("excute a sql: {}".format(statement))
 
@@ -158,30 +154,42 @@ def destroy_engine():
 def create_table(table_name, field_dict):
     global connection_context
     name_pair = [(name, connection_context.get_type_name(field)) for name, field in field_dict.items()]
+
     for e in name_pair:
         if e[1] == '':
             log_error('get db type name error.')
             return
+
     str_fields = ', '.join([e[0] + ' ' +  e[1] for e in name_pair])
     sql = "CREATE TABLE {} ({})".format(table_name, str_fields)
+
     log_debug("execute sql(\"{}\")".format(sql))
+
     try:
         connection_context.execute(sql)
+        return connection_context.get_cursor()
     except Exception as e:
         log_notice("create table failed: " + str(e))
 
 @with_connection
-def select(table_name_list, condition = '', columns = '*'):
+def select(table_name_list, **conditions):
     global connection_context
+
     if list == type(table_name_list):
         str_tables = ', '.join(table_name_list)
     else:
         str_tables = table_name_list
-    if condition:
-        sql = "SELECT {} FROM {} WHERE {}".format(columns, str_tables, condition)
+
+    if conditions:
+        sql = "SELECT * FROM {} WHERE {}".format(
+                str_tables,
+                ', '.join(['='.join([k, v.__repr__()]) for k, v in conditions.items()])
+            )
     else:
-        sql = "SELECT {} FROM {}".format(columns, str_tables)
+        sql = "SELECT * FROM {}".format(str_tables)
+
     log_debug("execute sql(\"{}\")".format(sql))
+
     try:
         connection_context.execute(sql)
         return connection_context.get_cursor().fetchall()
@@ -189,28 +197,37 @@ def select(table_name_list, condition = '', columns = '*'):
         log_notice("select records failed: " + str(e))
 
 @with_connection
-def insert(table_name, value_list):
-    str_values = ', '.join([e.__repr__() for e in value_list])
-    sql = "INSERT INTO {} VALUES({})".format(table_name, str_values)
+def insert(table_name, value_dict):
+    global connection_context
+    value_list = [e.__repr__() for e in value_dict.values()]
+    name_list = value_dict.keys()
+
+    sql = "INSERT INTO {} ({}) VALUES({})".format(
+            table_name,
+            ', '.join(name_list),
+            ', '.join(value_list)
+        )
     log_debug("execute sql(\"{}\")".format(sql))
+
     try:
         return connection_context.execute(sql)
     except Exception as e:
         log_notice("insert record failed: " + str(e))
 
-if __name__ == '__main__':
-    create_stub_engine()
-    with Connection():
-        select("user")
-    create_sqlite_engine("test.db")
-    with Connection():
-        create_table('user', {
-            'name': StringField(10),
-            'age': NumberField(),
-        })
-        insert("user", ['John', 18])
-        insert("user", ['Venoth', 27])
-        insert("user", ['Brown', 23])
-        insert("user", ['Kingdren', 25])
-        res = select("user")
-        log_notice("query result: " + str(res))
+@with_connection
+def delete(table_name, **conditions):
+    global connection_context
+    if conditions:
+        sql = "DELETE FROM {} WHERE {}".format(
+                table_name,
+                ', '.join(['='.join([k, v.__repr__()]) for k, v in conditions.items()])
+            )
+    else:
+        sql = "DELETE FROM {}".format(table_name)
+
+    log_debug("execute sql(\"{}\")".format(sql))
+
+    try:
+        return connection_context.execute(sql)
+    except Exception as e:
+        log_notice("delete record failed: " + str(e))

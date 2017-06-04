@@ -11,10 +11,11 @@ class Model(dict):
     def __init__(self, **keys):
         dict.__init__(self, **keys)
 
-class User(Model):
-    a = 1
+class DemoEmployee(Model):
+    __table_name__ = 'demo_employee'
+    name = StringField()
 
 if __name__ == '__main__':
     print User.a, User.test
-    u = User()
+    u = User(111)
     print u.a, u.test
