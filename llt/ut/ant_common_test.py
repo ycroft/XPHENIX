@@ -64,17 +64,21 @@ class TestDbApi(unittest.TestCase):
             res = select("user")
             self.assertEquals(len(res), 4)
 
-            res = select("user", name='john')
+            res = select("user", 'age', "name='john'")
             self.assertEquals(len(res), 1)
+            self.assertEquals(res[0][0], 18)
 
-            res = select("user", name='Venoth')
+            res = select("user", 'age', "name='Venoth'")
             self.assertEquals(len(res), 1)
+            self.assertEquals(res[0][0], 19)
 
-            res = select("user", name='Brown')
+            res = select("user", 'age', "name='Brown'")
             self.assertEquals(len(res), 1)
+            self.assertEquals(res[0][0], 20)
 
-            res = select("user", name='Kingdren')
+            res = select("user", 'age', "name='Kingdren'")
             self.assertEquals(len(res), 1)
+            self.assertEquals(res[0][0], 21)
 
             delete("user")
     
@@ -95,9 +99,9 @@ class TestDbApi(unittest.TestCase):
             res = select("user")
             self.assertEquals(len(res), 4)
 
-            delete("user", name='john')
+            delete("user", "name='john'")
 
-            res = select("user", name='john')
+            res = select("user", 'age', "name='john'")
             self.assertEquals(len(res), 0)
 
             delete("user")

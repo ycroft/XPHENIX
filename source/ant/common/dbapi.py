@@ -172,7 +172,7 @@ def create_table(table_name, field_dict):
         log_notice("create table failed: " + str(e))
 
 @with_connection
-def select(table_name_list, **conditions):
+def select(table_name_list, col_list='*', conditions=''):
     global connection_context
 
     if list == type(table_name_list):
@@ -181,12 +181,13 @@ def select(table_name_list, **conditions):
         str_tables = table_name_list
 
     if conditions:
-        sql = "SELECT * FROM {} WHERE {}".format(
+        sql = "SELECT {} FROM {} WHERE {}".format(
+                col_list,
                 str_tables,
-                ', '.join(['='.join([k, v.__repr__()]) for k, v in conditions.items()])
+                conditions,
             )
     else:
-        sql = "SELECT * FROM {}".format(str_tables)
+        sql = "SELECT {} FROM {}".format(col_list, str_tables)
 
     log_debug("execute sql(\"{}\")".format(sql))
 
@@ -215,12 +216,12 @@ def insert(table_name, value_dict):
         log_notice("insert record failed: " + str(e))
 
 @with_connection
-def delete(table_name, **conditions):
+def delete(table_name, conditions=''):
     global connection_context
     if conditions:
         sql = "DELETE FROM {} WHERE {}".format(
                 table_name,
-                ', '.join(['='.join([k, v.__repr__()]) for k, v in conditions.items()])
+                conditions,
             )
     else:
         sql = "DELETE FROM {}".format(table_name)
