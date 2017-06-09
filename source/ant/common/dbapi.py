@@ -151,7 +151,7 @@ def destroy_engine():
     database_context = None
 
 @with_connection
-def create_table(table_name, field_dict):
+def db_create_table(table_name, field_dict):
     global connection_context
     name_pair = [(name, connection_context.get_type_name(field)) for name, field in field_dict.items()]
 
@@ -172,7 +172,7 @@ def create_table(table_name, field_dict):
         log_notice("create table failed: " + str(e))
 
 @with_connection
-def select(table_name_list, col_list='*', conditions=''):
+def db_select(table_name_list, col_list='*', conditions=''):
     global connection_context
 
     if list == type(table_name_list):
@@ -181,7 +181,7 @@ def select(table_name_list, col_list='*', conditions=''):
         str_tables = table_name_list
 
     if conditions:
-        sql = "SELECT {} FROM {} WHERE {}".format(
+        sql = "SELECT {} FROM {} WHERE ({})".format(
                 col_list,
                 str_tables,
                 conditions,
@@ -198,7 +198,7 @@ def select(table_name_list, col_list='*', conditions=''):
         log_notice("select records failed: " + str(e))
 
 @with_connection
-def insert(table_name, value_dict):
+def db_insert(table_name, value_dict):
     global connection_context
     value_list = [e.__repr__() for e in value_dict.values()]
     name_list = value_dict.keys()
@@ -216,10 +216,10 @@ def insert(table_name, value_dict):
         log_notice("insert record failed: " + str(e))
 
 @with_connection
-def delete(table_name, conditions=''):
+def db_delete(table_name, conditions=''):
     global connection_context
     if conditions:
-        sql = "DELETE FROM {} WHERE {}".format(
+        sql = "DELETE FROM {} WHERE ({})".format(
                 table_name,
                 conditions,
             )
