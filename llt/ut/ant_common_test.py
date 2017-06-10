@@ -10,6 +10,7 @@ from ant.common.orm import *
 class TestDbApi(unittest.TestCase):
 
     def setUp(self):
+        print 'CREATE'
         create_sqlite_engine("test.db")
         with Connection():
             res = db_create_table('user', {
@@ -20,6 +21,7 @@ class TestDbApi(unittest.TestCase):
         self.assertNotEquals(res, None)
 
     def tearDown(self):
+        print 'DESTROY'
         os.system('rm test.db')
         
     def test_db_create_tbl(self):
@@ -141,10 +143,5 @@ class TestOrm(unittest.TestCase):
 
         user_1 = User(name='john', age=18)
         user_1.insert()
-        with Connection():
-            res = db_insert("user", {'name' : 'john', 'age': 18,})
-
-        with Connection():
-            res = db_select("user", 'age', "name='john'")
-            print res
-        User.get(name='john')
+        user_res = User.get(name='john')
+    

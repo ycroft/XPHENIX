@@ -44,7 +44,7 @@ class StubConnection(object):
         log_debug("return cursor.")
  
     def execute(self, statement):
-        log_debug("excute a sql: {}".format(statement))
+        log_debug("execute a sql: {}".format(statement))
 
 class SqliteConnection(object):
     def __init__(self, db_name):
@@ -109,7 +109,7 @@ class ConnectionContext(threading.local):
 
     def get_cursor(self):
         return self.connHandle.get_cursor()
-    
+
     def execute(self, sql):
         return self.connHandle.execute(sql)
 
@@ -125,7 +125,7 @@ class Connection(object):
         if not connection_context.isInit():
             connection_context.init()
             self.lock = False
-    
+
     def __exit__(self, exctype, excvalue, traceback):
         global connection_context   
         if not self.lock:
@@ -167,6 +167,7 @@ def db_create_table(table_name, field_dict):
 
     try:
         connection_context.execute(sql)
+        connection_context.connHandle.conn.commit()
         return connection_context.get_cursor()
     except Exception as e:
         log_notice("create table failed: " + str(e))
@@ -211,7 +212,9 @@ def db_insert(table_name, value_dict):
     log_debug("execute sql(\"{}\")".format(sql))
 
     try:
-        return connection_context.execute(sql)
+        res = connection_context.execute(sql)
+        connection_context.connHandle.conn.commit()
+        return res
     except Exception as e:
         log_notice("insert record failed: " + str(e))
 
@@ -229,6 +232,8 @@ def db_delete(table_name, conditions=''):
     log_debug("execute sql(\"{}\")".format(sql))
 
     try:
-        return connection_context.execute(sql)
+        res =  connection_context.execute(sql)
+        connection_context.connHandle.conn.commit()
+        return res
     except Exception as e:
         log_notice("delete record failed: " + str(e))
