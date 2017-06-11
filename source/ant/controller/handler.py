@@ -1,8 +1,7 @@
 
 import BaseHTTPServer
 
-def _debug_(str):
-    print(str)
+from ant.common.log import *
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server,
@@ -15,31 +14,31 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 client_address, server)
     
     def do_GET(self):
-        _debug_('GET')
+        log_debug('GET')
         response = 'you are trapped here.'
         self.send_common_headers(len(response))
         self.write_context(response)
     
     def do_POST(self):
-        _debug_('POST')
+        log_debug('POST')
     
     def do_PUT(self):
-        _debug_('PUT')
+        log_debug('PUT')
 
     def do_DELETE(self):
-        _debug_('DELETE')
+        log_debug('DELETE')
     
     def do_OPTIONS(self):
-        _debug_('OPTIONS')
+        log_debug('OPTIONS')
     
     def do_HEAD(self):
-        _debug_('HEAD')
+        log_debug('HEAD')
     
     def do_TRACE(self):
-        _debug_('TRACE')
+        log_debug('TRACE')
     
     def do_CONNECT(self):
-        _debug_('CONNECT')
+        log_debug('CONNECT')
 
     def send_common_headers(self, obj_length):
         self.send_response(200)

@@ -35,4 +35,3 @@ def st_test():
     client = TestClient('www.baidu.com', 80, log_debug)
 
     client.do_GET('/')
-
