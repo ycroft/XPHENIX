@@ -1,5 +1,7 @@
 
 from httplib import HTTPConnection
+from ant.common.log import *
+
 import urllib
 
 class TestClient(object):
@@ -29,10 +31,7 @@ class TestClient(object):
         self.respCache = self.conn.getresponse()
         self.logResponse()
 
-if __name__ == '__main__':
-    def common_log(text):
-        print text
-    client = TestClient('www.baidu.com', 80, common_log)
+def st_test():
+    client = TestClient('www.baidu.com', 80, log_debug)
 
     client.do_GET('/')
-

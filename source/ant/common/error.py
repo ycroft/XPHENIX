@@ -21,3 +21,6 @@ class ScannerModRelationError(TemplateError): pass
 # 模板元素列表不存在异常
 class ElementListNotExistError(TemplateError): pass
 
+class DataBaseError(Exception): pass
+
+class DataBaseNotInitError(DataBaseError): pass

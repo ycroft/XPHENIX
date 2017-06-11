@@ -20,11 +20,11 @@ div
     transform: translateY(-68%);
     box-shadow: #E2E2E2 2px 2px 30px 2px;
     border-radius: 5px;
+    font-size: 0;
 }
 
 .login .title
 {
-    @box-debug;
     width: 100%;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -48,8 +48,26 @@ div
     border-radius: 5px;
     border: solid 1px #4F7FE8;
     margin-top: 30px;
-    padding: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     box-shadow: #E2E2E2 2px 2px 5px 2px inset;
+    font-size: 0;
+}
+
+.login .input-box .text-box
+{
+    width: 170px;
+    height: 20px;
+    margin-left: 8px;
+    background: none;
+    font-size: 14px;
+    line-height: 20px;
+    display: inline-block;
+    border-style: none;
+    outline: none;
+    vertical-align: top;
 }
 
 .login .input-box .input-icon
@@ -59,7 +77,9 @@ div
     margin-left: 4px;
     font-size: 14px;
     line-height: 20px;
+    display: inline-block;
     border-right: solid 1px #4F7FE8;
+    vertical-align: top;
 }
 
 .input-icon .normal
@@ -71,7 +91,7 @@ div
 
 .login .button
 {
-    width: 102px;
+    width: 105px;
     height: 30px;
     background: linear-gradient(#6892ED, #4F7FE8);
     margin-top: 30px;
@@ -79,6 +99,7 @@ div
     color: white;
     text-align: center;
     border-radius: 5px;
+    font-size: 16px;
     display: inline-block;
     cursor: pointer;
 }
@@ -98,9 +119,5 @@ div
 .login .button:hover
 {
     background: #4F7FE8;
-    /*
-    box-shadow: #E2E2E2 2px 2px 5px 2px inset;
-    color: #4F7FE8;
-    */
 }
 

@@ -1,0 +1,48 @@
+
+/* a4b7bc */
+
+.header
+{
+    width: 100%; 
+    height: 45px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #4F7FE8;
+}
+
+.header .logo
+{
+    width: 150px;
+    height: 45px;
+    text-align: center;
+    color: white;
+    font-size: 22px;
+    line-height: 45px;
+    cursor: pointer;
+}
+
+.logo:hover
+{
+    color: #BED0F7;
+}
+
+.banner
+{
+    min-height: 200px;
+    margin-top: 20px;
+    border: solid 1px black;
+}
+
+.container_12 .space
+{
+    height: 30px;
+}
+
+.info-panel
+{
+    height: 400px;
+    background-color: gray;
+}
+
