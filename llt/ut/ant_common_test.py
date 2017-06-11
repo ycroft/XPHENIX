@@ -10,7 +10,7 @@ from ant.common.orm import *
 class TestDbApi(unittest.TestCase):
 
     def setUp(self):
-        print 'CREATE'
+        log_debug('testcase setup: create \'test.db\'')
         create_sqlite_engine("test.db")
         with Connection():
             res = db_create_table('user', {
@@ -21,7 +21,7 @@ class TestDbApi(unittest.TestCase):
         self.assertNotEquals(res, None)
 
     def tearDown(self):
-        print 'DESTROY'
+        log_debug('testcase tear down: remove \'test.db\'')
         os.system('rm test.db')
         
     def test_db_create_tbl(self):
@@ -115,6 +115,7 @@ class TestDbApi(unittest.TestCase):
 class TestOrm(unittest.TestCase):
 
     def setUp(self):
+        log_debug('testcase setup: create \'test.db\'')
         create_sqlite_engine("test.db")
         with Connection():
             res = db_create_table('user', {
@@ -125,6 +126,7 @@ class TestOrm(unittest.TestCase):
         self.assertNotEquals(res, None)
 
     def tearDown(self):
+        log_debug('testcase tear down: remove \'test.db\'')
         os.system('rm test.db')
 
     def test_orm_construct(self):
@@ -143,5 +145,11 @@ class TestOrm(unittest.TestCase):
 
         user_1 = User(name='john', age=18)
         user_1.insert()
-        user_res = User.get(name='john')
+
+        users = User.find_all(name='john')
+        self.assertEquals(len(users), 1)
+        self.assertEquals(users[0]['age'], 18)
+
+        user = User.find_one(age=19)
+        self.assertEquals(user, None)
     

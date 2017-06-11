@@ -46,6 +46,10 @@ class StubConnection(object):
     def execute(self, statement):
         log_debug("execute a sql: {}".format(statement))
 
+    def commit(self):
+        log_debug("actions commited.")
+    
+
 class SqliteConnection(object):
     def __init__(self, db_name):
         self.db_name = db_name
@@ -73,6 +77,9 @@ class SqliteConnection(object):
     
     def execute(self, statement):
         return self.cursor.execute(statement)
+
+    def commit(self):
+        return self.conn.commit()
     
     def get_type_name(self, field):
         if not type(field) in self.type_map:
@@ -112,6 +119,9 @@ class ConnectionContext(threading.local):
 
     def execute(self, sql):
         return self.connHandle.execute(sql)
+    
+    def execute_end(self):
+        return self.connHandle.commit()
 
     def get_type_name(self, field):
         return self.connHandle.get_type_name(field)
@@ -127,7 +137,8 @@ class Connection(object):
             self.lock = False
 
     def __exit__(self, exctype, excvalue, traceback):
-        global connection_context   
+        global connection_context
+        connection_context.execute_end()
         if not self.lock:
             connection_context.destroy()
 
@@ -136,7 +147,6 @@ def with_connection(execute_func):
         with Connection():
             return execute_func(*args, **kwargs)
     return _func
-
 
 def create_stub_engine():
     global database_context
@@ -167,7 +177,7 @@ def db_create_table(table_name, field_dict):
 
     try:
         connection_context.execute(sql)
-        connection_context.connHandle.conn.commit()
+        connection_context.execute_end()
         return connection_context.get_cursor()
     except Exception as e:
         log_notice("create table failed: " + str(e))
@@ -213,7 +223,6 @@ def db_insert(table_name, value_dict):
 
     try:
         res = connection_context.execute(sql)
-        connection_context.connHandle.conn.commit()
         return res
     except Exception as e:
         log_notice("insert record failed: " + str(e))
@@ -233,7 +242,6 @@ def db_delete(table_name, conditions=''):
 
     try:
         res =  connection_context.execute(sql)
-        connection_context.connHandle.conn.commit()
         return res
     except Exception as e:
         log_notice("delete record failed: " + str(e))

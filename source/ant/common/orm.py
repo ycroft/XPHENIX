@@ -45,18 +45,49 @@ class Model(dict):
             return '(' + '='.join([key, value_list.__repr__()]) + ')'
 
     @classmethod
-    def get(cls, **var_dict):
-
+    def _find_result(cls, **var_dict):
         cond_list = [cls._get_condition_expr(k, v)
                 for k, v in var_dict.items()]
         str_condition = ' AND '.join(cond_list)
-        col_list = '*'
+        col_list = ', '.join(cls._field_def_.keys())
 
         with Connection():
             res = db_select(cls._table_name_, col_list, str_condition)
         log_debug('orm fetch result: {}'.format(res))
+        return res
 
+    @classmethod
+    def find_all(cls, **var_dict):
+        res = cls._find_result(**var_dict)
+        if res == None or len(res) == 0:
+            return None
+
+        models = []
+        for entry in res:
+            cursor = 0
+            attrs = {}
+            for key in cls._field_def_.keys():
+                attrs[key] = entry[cursor]
+                cursor += 1
+            
+            models.append(cls(**attrs))
+
+        return models
     
     @classmethod
-    def get_with_cond(cls, **var_dict):
+    def find_one(cls, **var_dict):
+        res = cls._find_result(**var_dict)
+        if res == None or len(res) == 0:
+            return None
+        
+        cursor = 0
+        attrs = {}
+        for key in cls._field_def_.keys():
+            attrs[key] = res[0][cursor]
+            cursor += 1
+
+        return cls(**attrs)
+    
+    @classmethod
+    def find_with_cond(cls, **var_dict):
         pass
