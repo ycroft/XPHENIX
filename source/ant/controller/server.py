@@ -18,6 +18,7 @@ class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         dispatcher: 用于将请求定位的对象
         merger: 用于处理组件返回值并生成返回报文的对象
     '''
+
     def __init__(self, server_config):
         self.address = server_config.get('addr', 'localhost')
         self.port = server_config.get('port', 8888)
