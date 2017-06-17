@@ -29,14 +29,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         try:
             self.dispatcher.dispatch(self.path)
-            print self.dispatcher.req_tmpl
-            print self.dispatcher.req_cmpt
+            resp_text = self.dispatcher.conclude_response()
+            self.send_common_headers(len(resp_text))
+            self.write_context(resp_text)
         except Exception as e:
             log_error("handle url error: {}".format(str(e)))
-        
-        response = 'you are trapped here.'
-        self.send_common_headers(len(response))
-        self.write_context(response)
     
     def do_POST(self):
         pass

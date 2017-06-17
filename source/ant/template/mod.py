@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from ant.common.error import *
+from ant.common.log import *
+
 import os
 import re
 
@@ -248,6 +250,11 @@ class Scanner(object):
         self.check_mods_ref()
         self.open_mods_ref()
 
+        log_debug('[template] manager initialized.dir({}),mod dict({}).'.format(
+                scan_dir,
+                str(self.mod_dict)
+            ))
+
     def scan_mods_text(self, scan_dir):
         '''扫描文本
 
@@ -267,10 +274,12 @@ class Scanner(object):
                     continue
 
                 file_path = os.path.join(dir_name, file_name)
+
+                log_debug('[template]: scan a mod file({}).'.format(file_path))
                 mod = Mod(file_path)
                 if mod.name == '':
                     raise ScannerVoidModNameError()
-                self.mod_dict[mod.name] = mod;
+                self.mod_dict[mod.name] = mod
         pass
 
     def scan_mods_ref(self):
@@ -331,10 +340,10 @@ class Scanner(object):
         '''
         if not name in self.mod_dict:
             # debug info
-            return
+            return ''
         if not self.mod_dict[name].can_be_entry():
             # debug info
-            return
+            return ''
         
         mod_cursor = self.mod_dict[name]
         current_context = mod_cursor.context

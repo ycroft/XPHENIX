@@ -94,9 +94,11 @@ class Dispatcher(object):
         log_debug('handle path({}) with post({})'.format(path, post_args))
         self.genRequest(path, post_args)
         self.tmpl.handle(self.req_tmpl)
-
         '''
         self.cmpt.handle(self.req_cmpt)
 
         '''
+    
+    def conclude_response(self):
+        return self.req_tmpl.response
 
