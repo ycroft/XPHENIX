@@ -22,8 +22,8 @@ class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def __init__(self, server_config):
         self.address = server_config.get('addr', 'localhost')
         self.port = server_config.get('port', 8888)
-        self.handler = server_config['handler']     # raise exception
-        self.dispatcher = None
+        self.handler = server_config['handler']         # raise exception
+        self.dispatcher = server_config['dispatcher']   # raise exception
         self.merger = None
 
         SocketServer.TCPServer.__init__(self, (self.address, self.port),

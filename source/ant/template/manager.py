@@ -11,4 +11,3 @@ class TemplateManager(object):
 
     def generate_html(self, name):
         return self.scanner.generate_html(name)
-

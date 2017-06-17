@@ -14,7 +14,7 @@ class CommonRequest(object):
         self.var_list = var_list
 
     def __str__(self):
-        return '\n'.join([
+        return '; '.join([
                 'name: {}',
                 'request type: {}',
                 'var_list: {}',

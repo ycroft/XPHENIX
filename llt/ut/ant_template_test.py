@@ -31,11 +31,8 @@ class TestMod(unittest.TestCase):
         '''
 
     def test_manager(self):
-        tm = TemplateManager({
-                'dir': 'ut/res/',
-            })
+        tm = TemplateManager({'dir': 'ut/res/',})
         self.assertEqual(4, len(tm.mod_dict))
         '''
         _debug_(tm.mod_dict)
         '''
-        

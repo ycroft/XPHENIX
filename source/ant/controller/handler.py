@@ -1,5 +1,8 @@
+# coding = utf-8
 
 import BaseHTTPServer
+
+import urlparse
 
 from ant.common.log import *
 
@@ -13,32 +16,48 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request,
                 client_address, server)
     
+    def _debug_print_context(self):
+        log_debug('client_address={}'.format(self.client_address))
+        log_debug('command={}'.format(self.command))
+        log_debug('path={}'.format(self.path))
+        log_debug('parsed_path={}'.format(urlparse.urlparse(self.path)))
+        log_debug('request_version={}'.format(self.request_version))
+        log_debug('headers={}'.format(self.headers))
+
     def do_GET(self):
-        log_debug('GET')
+        self._debug_print_context()
+
+        try:
+            self.dispatcher.dispatch(self.path)
+            print self.dispatcher.req_tmpl
+            print self.dispatcher.req_cmpt
+        except Exception as e:
+            log_error("handle url error: {}".format(str(e)))
+        
         response = 'you are trapped here.'
         self.send_common_headers(len(response))
         self.write_context(response)
     
     def do_POST(self):
-        log_debug('POST')
+        pass
     
     def do_PUT(self):
-        log_debug('PUT')
+        pass
 
     def do_DELETE(self):
-        log_debug('DELETE')
+        pass
     
     def do_OPTIONS(self):
-        log_debug('OPTIONS')
+        pass
     
     def do_HEAD(self):
-        log_debug('HEAD')
+        pass
     
     def do_TRACE(self):
-        log_debug('TRACE')
+        pass
     
     def do_CONNECT(self):
-        log_debug('CONNECT')
+        pass
 
     def send_common_headers(self, obj_length):
         self.send_response(200)
