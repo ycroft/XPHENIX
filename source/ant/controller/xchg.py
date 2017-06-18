@@ -8,6 +8,7 @@ from ant.common.request import TemplateRequest
 from ant.common.log import *
 
 import ConfigParser
+import os
 import re
 
 class Dispatcher(object):
@@ -37,8 +38,8 @@ class Dispatcher(object):
         self.tmpl = tmpl_adapter
         self.cmpt = cmpt_adapter
 
-    def genRequest(self, path, post_args):
-        '''生成请求对象
+    def gen_request_for_html(self, path, post_args):
+        '''生成html请求
 
         解析配置文件，文件规则详见example_handler.cfg
 
@@ -79,6 +80,19 @@ class Dispatcher(object):
 
         self.req_tmpl.set_var(args)
         self.req_cmpt.set_var(args)
+    
+    def gen_request_for_css(self, path):
+        '''生成css请求
+
+        单纯导入css的文件名称
+
+        Args:
+            path: 请求路径
+        Returns: 无
+        Raises: 无
+        '''
+        self.req_tmpl = TemplateRequest('_style_' + path)
+        self.req_cmpt = ComponentRequest('')
 
     def dispatch(self, path, post_args = {}):
         '''分发
@@ -92,7 +106,12 @@ class Dispatcher(object):
         Raises: 无
         '''
         log_debug('handle path({}) with post({})'.format(path, post_args))
-        self.genRequest(path, post_args)
+
+        if path.endswith('css'):
+            self.gen_request_for_css(os.path.split(path)[1])
+        else:
+            self.gen_request_for_html(path, post_args)
+
         self.tmpl.handle(self.req_tmpl)
         '''
         self.cmpt.handle(self.req_cmpt)

@@ -240,19 +240,24 @@ class Scanner(object):
 
     Attributes:
         mod_dict: 模板名称--对象字典
+        css_dict: 样式名称--样式文件路径
     '''
-    def __init__(self, scan_dir, res_dict = {}):
+    def __init__(self, scan_dir, mod_dict = {}, css_dict = {}):
         '''初始化时扫描目录
         '''
-        self.mod_dict = res_dict
+        self.mod_dict = mod_dict
+        self.css_dict = css_dict
         self.scan_mods_text(scan_dir)
         self.scan_mods_ref()
         self.check_mods_ref()
         self.open_mods_ref()
+        self.scan_css(scan_dir)
 
-        log_debug('[template] manager initialized.dir({}),mod dict({}).'.format(
+        log_debug(('[template] manager initialized.' +
+            'dir({}), mod dict({}), css dict({}).').format(
                 scan_dir,
-                str(self.mod_dict)
+                str(self.mod_dict),
+                str(self.css_dict),
             ))
 
     def scan_mods_text(self, scan_dir):
@@ -281,6 +286,28 @@ class Scanner(object):
                     raise ScannerVoidModNameError()
                 self.mod_dict[mod.name] = mod
         pass
+    
+    def scan_css(self, scan_dir):
+        '''扫描样式文件
+
+        扫描后缀名为css的文件，仅获取路径
+
+        Args:
+            scan_dir: 扫描目录路径名称
+        Returns: 无
+        Errors: 无
+        '''
+
+        for dir_name, sub_dir_list, file_list in os.walk(scan_dir):
+            for file_name in file_list:
+                sufix = os.path.splitext(file_name)[1][1:]
+
+                if sufix != 'css':
+                    continue
+
+                file_path = os.path.join(dir_name, file_name)
+
+                self.css_dict[file_name] = file_path
 
     def scan_mods_ref(self):
         '''建立模板引用
@@ -353,3 +380,15 @@ class Scanner(object):
 
         return current_context
 
+    def generate_css(self, name):
+        '''读取css内容
+
+        Args:
+            name: style文件名称
+
+        Returns:    无
+        Errors:     无
+        '''
+        file_path = self.css_dict[name]          # raise exception
+        with open(file_path, 'r') as file_handle:
+            return file_handle.read()

@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     server = TcpServer({
             'addr': '127.0.0.1',
-            'port': 8889,
+            'port': 8888,
             'handler': RequestHandler,
             'dispatcher': disp,
         })

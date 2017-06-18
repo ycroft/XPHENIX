@@ -17,16 +17,19 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 client_address, server)
     
     def _debug_print_context(self):
+        log_debug('======================Handle Request======================')
         log_debug('client_address={}'.format(self.client_address))
         log_debug('command={}'.format(self.command))
         log_debug('path={}'.format(self.path))
         log_debug('parsed_path={}'.format(urlparse.urlparse(self.path)))
         log_debug('request_version={}'.format(self.request_version))
         log_debug('headers={}'.format(self.headers))
+        log_debug('==========================================================')
 
     def do_GET(self):
         self._debug_print_context()
-
+        
+        '''
         try:
             self.dispatcher.dispatch(self.path)
             resp_text = self.dispatcher.conclude_response()
@@ -34,6 +37,12 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.write_context(resp_text)
         except Exception as e:
             log_error("handle url error: {}".format(str(e)))
+        '''
+
+        self.dispatcher.dispatch(self.path)
+        resp_text = self.dispatcher.conclude_response()
+        self.send_common_headers(len(resp_text))
+        self.write_context(resp_text)
     
     def do_POST(self):
         pass
