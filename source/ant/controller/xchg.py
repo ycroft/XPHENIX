@@ -11,6 +11,8 @@ import ConfigParser
 import os
 import re
 
+RESOURCE_FILE_TAG = '_rsc_'
+
 class Dispatcher(object):
     '''URL分发类型
 
@@ -81,7 +83,7 @@ class Dispatcher(object):
         self.req_tmpl.set_var(args)
         self.req_cmpt.set_var(args)
     
-    def gen_request_for_css(self, path):
+    def gen_request_for_rsc(self, path):
         '''生成css请求
 
         单纯导入css的文件名称
@@ -91,7 +93,7 @@ class Dispatcher(object):
         Returns: 无
         Raises: 无
         '''
-        self.req_tmpl = TemplateRequest('_style_' + path)
+        self.req_tmpl = TemplateRequest(path)
         self.req_cmpt = ComponentRequest('')
 
     def dispatch(self, path, post_args = {}):
@@ -107,15 +109,14 @@ class Dispatcher(object):
         '''
         log_debug('handle path({}) with post({})'.format(path, post_args))
 
-        if path.endswith('css'):
-            self.gen_request_for_css(os.path.split(path)[1])
+        if RESOURCE_FILE_TAG in path:
+            self.gen_request_for_rsc(os.path.split(path)[1])
         else:
             self.gen_request_for_html(path, post_args)
 
         self.tmpl.handle(self.req_tmpl)
         '''
         self.cmpt.handle(self.req_cmpt)
-
         '''
     
     def conclude_response(self):

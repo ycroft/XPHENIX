@@ -1,5 +1,7 @@
-
+# coding = utf-8
 from datetime import datetime
+
+import threading
 
 is_allowed = {
     'EMERGENCY': True,
@@ -13,7 +15,13 @@ def CONSOLE(ctx):
     print(ctx)
 
 def _format_log(level, msg):
-    return "[{}][{}]{}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), level, msg)
+    thread = threading.current_thread()
+    return "[{}][PID|{}][{}]{}".format(
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'),
+            thread.getName(),
+            level,
+            msg
+        )
 
 def log_out(ctx):
     CONSOLE(ctx)

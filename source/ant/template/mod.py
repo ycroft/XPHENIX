@@ -240,24 +240,24 @@ class Scanner(object):
 
     Attributes:
         mod_dict: 模板名称--对象字典
-        css_dict: 样式名称--样式文件路径
+        rsc_dict: 资源名称--资源文件路径
     '''
-    def __init__(self, scan_dir, mod_dict = {}, css_dict = {}):
+    def __init__(self, scan_dir, mod_dict = {}, rsc_dict = {}):
         '''初始化时扫描目录
         '''
         self.mod_dict = mod_dict
-        self.css_dict = css_dict
+        self.rsc_dict = rsc_dict
         self.scan_mods_text(scan_dir)
         self.scan_mods_ref()
         self.check_mods_ref()
         self.open_mods_ref()
-        self.scan_css(scan_dir)
+        self.scan_rsc(scan_dir)
 
         log_debug(('[template] manager initialized.' +
             'dir({}), mod dict({}), css dict({}).').format(
                 scan_dir,
                 str(self.mod_dict),
-                str(self.css_dict),
+                str(self.rsc_dict),
             ))
 
     def scan_mods_text(self, scan_dir):
@@ -275,7 +275,7 @@ class Scanner(object):
             for file_name in file_list:
                 sufix = os.path.splitext(file_name)[1][1:]
 
-                if sufix != 'mod' and sufix != 'html':
+                if not self.is_mods(sufix):
                     continue
 
                 file_path = os.path.join(dir_name, file_name)
@@ -287,10 +287,10 @@ class Scanner(object):
                 self.mod_dict[mod.name] = mod
         pass
     
-    def scan_css(self, scan_dir):
-        '''扫描样式文件
+    def scan_rsc(self, scan_dir):
+        '''扫描资源文件
 
-        扫描后缀名为css的文件，仅获取路径
+        模板以外的资源的文件，仅获取路径
 
         Args:
             scan_dir: 扫描目录路径名称
@@ -302,12 +302,12 @@ class Scanner(object):
             for file_name in file_list:
                 sufix = os.path.splitext(file_name)[1][1:]
 
-                if sufix != 'css':
+                if self.is_mods(sufix):
                     continue
 
                 file_path = os.path.join(dir_name, file_name)
 
-                self.css_dict[file_name] = file_path
+                self.rsc_dict[file_name] = file_path
 
     def scan_mods_ref(self):
         '''建立模板引用
@@ -380,15 +380,30 @@ class Scanner(object):
 
         return current_context
 
-    def generate_css(self, name):
-        '''读取css内容
+    def generate_rsc(self, name):
+        '''读取资源文件内容
 
         Args:
-            name: style文件名称
+            name: 资源文件名称
 
         Returns:    无
         Errors:     无
         '''
-        file_path = self.css_dict[name]          # raise exception
-        with open(file_path, 'r') as file_handle:
-            return file_handle.read()
+        file_path = self.rsc_dict[name]          # raise exception
+
+        print file_path
+        file_handle = open(file_path, 'r')
+        print 'FILE OPEN', file_handle
+        ctxt = file_handle.read()
+        if not ctxt:
+            print 'VOID MET.'
+        file_handle.close()
+        print 'FILE CLOSE.'
+
+        return ctxt
+    
+    def is_mods(self, sufix):
+        if sufix == 'mod' or sufix == 'html':
+            return True
+
+        return False
