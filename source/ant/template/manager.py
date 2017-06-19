@@ -19,6 +19,12 @@ class TemplateManager(object):
         if request.name.startswith(RESOURCE_FILE_TAG):
             rsc_name = request.name.replace(RESOURCE_FILE_TAG, '')
             request.write_response(self.scanner.generate_rsc(rsc_name))
+
+            if not request.response:
+                log_error('return response: {}'.format(request.response.__repr__()))
         else:
             request.write_response(self.scanner.generate_html(request.name))
+            
+            if not request.response:
+                log_error('return response: {}'.format(request.response.__repr__()))
 

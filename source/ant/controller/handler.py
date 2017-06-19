@@ -99,10 +99,18 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return mime_type
         else:
             return MIME_TYPE_DEFAULT
+    
+    def send_resp(self, mime_type='text/plain', resp = ''):
+        self.send_response(200)
+        self.send_header('Content-type', mime_type + '; charset=UTF-8')
+        self.send_header('Content-length', str(len(resp)))
+        self.end_headers()
+        self.wfile.write('')
 
     def do_default_filter(self):
 
         if self.path == '/favicon.ico':
+            self.send_resp()
             return True
         
         return False

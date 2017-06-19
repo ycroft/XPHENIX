@@ -8,6 +8,7 @@ from ant.common.request import TemplateRequest
 from ant.common.log import *
 
 import ConfigParser
+from io import StringIO
 import os
 import re
 
@@ -120,5 +121,11 @@ class Dispatcher(object):
         '''
     
     def conclude_response(self):
-        return self.req_tmpl.response
 
+        if self.req_tmpl.response:
+            return self.req_tmpl.response
+        else:
+            log_error('try to get void response({})'.format(
+                    self.req_tmpl.response.__repr__()
+                ))
+            return StringIO()
