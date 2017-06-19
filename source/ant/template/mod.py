@@ -391,14 +391,14 @@ class Scanner(object):
         '''
         file_path = self.rsc_dict[name]          # raise exception
 
-        print file_path
         file_handle = open(file_path, 'r')
-        print 'FILE OPEN', file_handle
+
+        log_debug('resource file open({}) at {}.'.format(file_path, file_handle))
+
         ctxt = file_handle.read()
         if not ctxt:
-            print 'VOID MET.'
+            log_error('file({}) with no content.'.format(file_path))
         file_handle.close()
-        print 'FILE CLOSE.'
 
         return ctxt
     
@@ -407,3 +407,4 @@ class Scanner(object):
             return True
 
         return False
+

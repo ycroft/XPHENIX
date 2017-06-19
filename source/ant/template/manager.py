@@ -18,8 +18,7 @@ class TemplateManager(object):
 
         if request.name.startswith(RESOURCE_FILE_TAG):
             rsc_name = request.name.replace(RESOURCE_FILE_TAG, '')
-            print rsc_name
-            print self.rsc_dict
             request.write_response(self.scanner.generate_rsc(rsc_name))
         else:
             request.write_response(self.scanner.generate_html(request.name))
+

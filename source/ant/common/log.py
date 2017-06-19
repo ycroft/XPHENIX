@@ -47,3 +47,4 @@ def log_notice(msg):
 
 def log_debug(msg):
     _log_in_level('DEBUG', msg)
+
