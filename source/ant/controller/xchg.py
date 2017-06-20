@@ -8,11 +8,8 @@ from ant.common.request import TemplateRequest
 from ant.common.log import *
 
 import ConfigParser
-from io import StringIO
 import os
 import re
-
-RESOURCE_FILE_TAG = '_rsc_'
 
 class Dispatcher(object):
     '''URL分发类型
@@ -41,7 +38,7 @@ class Dispatcher(object):
         self.tmpl = tmpl_adapter
         self.cmpt = cmpt_adapter
 
-    def gen_request_for_html(self, path, post_args):
+    def gen_request(self, path, post_args):
         '''生成html请求
 
         解析配置文件，文件规则详见example_handler.cfg
@@ -53,22 +50,32 @@ class Dispatcher(object):
         Raises:
             ConfigParseError: 解析配置文件错误
         '''
-        pageName = ''
+        rsc_name = ''
         args = {}
 
         for k, v in self.config.items('page'):
             sres = re.search(v, path)
-            if sres:
-                pageName = k
-                break
-        if pageName == '': raise ConfigParseError()     # 遇到未配置的path
+            if not sres:
+                continue
 
-        self.req_tmpl = TemplateRequest(self.config.get('template', pageName))
-        self.req_cmpt = ComponentRequest(self.config.get('component', pageName))
+            if sres.end() == len(path):                 # 完全匹配，路由模板
+                rsc_name = k
+                break
+            else:                                       # 请求其他资源
+                rsc_name = os.path.split(path)[1]
+                self.req_tmpl = TemplateRequest(rsc_name, False)
+                self.req_cmpt = None
+                return
+
+        if rsc_name == '':                              # 请求资源不存在
+            raise TemplateWithoutNameError()
+
+        self.req_tmpl = TemplateRequest(self.config.get('template', rsc_name))
+        self.req_cmpt = ComponentRequest(self.config.get('component', rsc_name))
 
         if not post_args: return
 
-        var_list = self.config.get('var_list', pageName).split(',')
+        var_list = self.config.get('var_list', rsc_name).split(',')
 
         if len(var_list) != len(sres.groups()):         # path中的参数个数和配置
             raise ConfigParseError()                    # 中的参数个数不匹配
@@ -83,19 +90,6 @@ class Dispatcher(object):
 
         self.req_tmpl.set_var(args)
         self.req_cmpt.set_var(args)
-    
-    def gen_request_for_rsc(self, path):
-        '''生成css请求
-
-        单纯导入css的文件名称
-
-        Args:
-            path: 请求路径
-        Returns: 无
-        Raises: 无
-        '''
-        self.req_tmpl = TemplateRequest(path)
-        self.req_cmpt = ComponentRequest('')
 
     def dispatch(self, path, post_args = {}):
         '''分发
@@ -110,10 +104,7 @@ class Dispatcher(object):
         '''
         log_debug('handle path({}) with post({})'.format(path, post_args))
 
-        if RESOURCE_FILE_TAG in path:
-            self.gen_request_for_rsc(os.path.split(path)[1])
-        else:
-            self.gen_request_for_html(path, post_args)
+        self.gen_request(path, post_args)
 
         self.tmpl.handle(self.req_tmpl)
         '''
@@ -123,9 +114,12 @@ class Dispatcher(object):
     def conclude_response(self):
 
         if self.req_tmpl.response:
+            tmp_out = open(self.req_tmpl.name, 'w')
+            tmp_out.write(self.req_tmpl.response)
+            tmp_out.close()
             return self.req_tmpl.response
         else:
             log_error('try to get void response({})'.format(
                     self.req_tmpl.response.__repr__()
                 ))
-            return StringIO()
+            return ''

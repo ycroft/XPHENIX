@@ -2,7 +2,6 @@
 
 from ant.template.mod import Mod
 from ant.template.mod import Scanner
-from ant.controller.xchg import RESOURCE_FILE_TAG
 
 from ant.common.log import *
 
@@ -16,9 +15,8 @@ class TemplateManager(object):
     def handle(self, request):
         log_debug('[template]:handle request: {}.'.format(str(request)))
 
-        if request.name.startswith(RESOURCE_FILE_TAG):
-            rsc_name = request.name.replace(RESOURCE_FILE_TAG, '')
-            request.write_response(self.scanner.generate_rsc(rsc_name))
+        if not request.is_req_for_mod:
+            request.write_response(self.scanner.generate_rsc(request.name))
 
             if not request.response:
                 log_error('return response: {}'.format(request.response.__repr__()))
@@ -27,4 +25,3 @@ class TemplateManager(object):
             
             if not request.response:
                 log_error('return response: {}'.format(request.response.__repr__()))
-

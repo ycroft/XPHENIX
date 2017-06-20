@@ -4,6 +4,7 @@
 
 '''
 import SocketServer
+import BaseHTTPServer
 
 class TcpServer(SocketServer.TCPServer):
     '''Tcp服务器
@@ -23,7 +24,7 @@ class TcpServer(SocketServer.TCPServer):
         self.port = server_config.get('port', 8888)
         self.handler = server_config['handler']         # raise exception
         self.dispatcher = server_config['dispatcher']   # raise exception
-        self.merger = None
+        self.merger  = None
 
         SocketServer.TCPServer.__init__(self, (self.address, self.port),
                 self.handler)

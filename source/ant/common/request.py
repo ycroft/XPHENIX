@@ -26,9 +26,10 @@ class CommonRequest(object):
                 self.response)
 
 class TemplateRequest(CommonRequest):
-    def __init__(self, template_name):
+    def __init__(self, template_name, is_req_for_mod = True):
         CommonRequest.__init__(self, REQ_TYPE.TMPL)
         self.name = template_name
+        self.is_req_for_mod = is_req_for_mod
 
     def write_response(self, text):
         self.response = text
