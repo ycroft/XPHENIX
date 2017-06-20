@@ -19,7 +19,7 @@ class TestDispatcher(unittest.TestCase):
 
     def test_config_init(self):
         disp = Dispatcher('ut/res/test.cfg', None, None)
-        disp.dispatch('127.0.0.1:8888/doczone/login')
 
         log_debug(disp.req_tmpl)
         log_debug(disp.req_cmpt)
+

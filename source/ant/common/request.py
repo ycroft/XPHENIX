@@ -41,4 +41,3 @@ class ComponentRequest(CommonRequest):
 
     def write_response(self, args):
         self.response = args
-
