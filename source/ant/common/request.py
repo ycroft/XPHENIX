@@ -14,7 +14,7 @@ class CommonRequest(object):
         self.var_list = var_list
 
     def __str__(self):
-        return '\n'.join([
+        return '; '.join([
                 'name: {}',
                 'request type: {}',
                 'var_list: {}',
@@ -26,9 +26,10 @@ class CommonRequest(object):
                 self.response)
 
 class TemplateRequest(CommonRequest):
-    def __init__(self, template_name):
+    def __init__(self, template_name, is_req_for_mod = True):
         CommonRequest.__init__(self, REQ_TYPE.TMPL)
         self.name = template_name
+        self.is_req_for_mod = is_req_for_mod
 
     def write_response(self, text):
         self.response = text
@@ -40,4 +41,3 @@ class ComponentRequest(CommonRequest):
 
     def write_response(self, args):
         self.response = args
-

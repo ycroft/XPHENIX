@@ -1,10 +1,14 @@
+# coding: utf-8
 
 '''URL分发
 '''
 from ant.common.error import *
 from ant.common.request import ComponentRequest
 from ant.common.request import TemplateRequest
+from ant.common.log import *
+
 import ConfigParser
+import os
 import re
 
 class Dispatcher(object):
@@ -18,76 +22,104 @@ class Dispatcher(object):
         cmpt: 组件适配对象（用于处理组件请求）
     '''
     def __init__(self, name_cfg, tmpl_adapter, cmpt_adapter):
-    '''初始化
+        '''初始化
 
-    name_cfg: 配置文件路径
-    tmpl_adapter: 模板适配对象
-    cmpt_adapter: 组件适配对象
-
-    '''
+        name_cfg: 配置文件路径
+        tmpl_adapter: 模板适配对象
+        cmpt_adapter: 组件适配对象
+        
+        '''
         self.config = ConfigParser.ConfigParser()
-        self.config.read(name_cfg)
+        if not self.config.read(name_cfg):
+            raise ConfigParseError()
+
         self.req_tmpl = None;       # 目前暂未实现，设为空值
         self.req_cmpt = None;       # 目前暂未实现，设为空值
         self.tmpl = tmpl_adapter
         self.cmpt = cmpt_adapter
 
-    def genRequest(self, url, post_args):
-        '''生成请求对象
+    def gen_request(self, path, post_args):
+        '''生成html请求
 
         解析配置文件，文件规则详见example_handler.cfg
 
         Args:
-            url: URL字符串
+            path: 请求路径
             post_args: 传入的额外参数，主要适用于POST请求
         Returns: 无
         Raises:
             ConfigParseError: 解析配置文件错误
         '''
-        pageName = ''
+        rsc_name = ''
         args = {}
 
         for k, v in self.config.items('page'):
-            sres = re.search(v, url)
-            if sres:
-                pageName = k
-                break;
-        if pageName == '': raise ConfigParseError()     # 遇到未配置的URL
+            sres = re.search(v, path)
+            if not sres:
+                continue
 
-        self.req_tmpl = TemplateRequest(self.config.get('template', pageName))
-        self.req_cmpt = ComponentRequest(self.config.get('component', pageName))
-        var_list = self.config.get('var_list', pageName).split(',')
+            if sres.end() == len(path):                 # 完全匹配，路由模板
+                rsc_name = k
+                break
+            else:                                       # 请求其他资源
+                rsc_name = os.path.split(path)[1]
+                self.req_tmpl = TemplateRequest(rsc_name, False)
+                self.req_cmpt = None
+                return
 
-        if len(var_list) != len(sres.groups()):         # url中的参数个数和配置
+        if rsc_name == '':                              # 请求资源不存在
+            raise TemplateWithoutNameError()
+
+        self.req_tmpl = TemplateRequest(self.config.get('template', rsc_name))
+        self.req_cmpt = ComponentRequest(self.config.get('component', rsc_name))
+
+        if not post_args: return
+
+        var_list = self.config.get('var_list', rsc_name).split(',')
+
+        if len(var_list) != len(sres.groups()):         # path中的参数个数和配置
             raise ConfigParseError()                    # 中的参数个数不匹配
 
         for index, var_name in enumerate(var_list):
-            var_name = var_name.strip()                 # 处理包含在URL中的
+            var_name = var_name.strip()                 # 处理包含在path中的
             args[var_name] = sres.group(index + 1)      # 传入参数
 
         for k, v in post_args.items:
-            if k in args: raise ConfigParseError()      # POST参数和URL参数冲突
+            if k in args: raise ConfigParseError()      # POST参数和path参数冲突
             args[k] = v                                 # 用post_args扩展列表
 
         self.req_tmpl.set_var(args)
         self.req_cmpt.set_var(args)
 
-    def dispatch(self, url, post_args = {}):
+    def dispatch(self, path, post_args = {}):
         '''分发
 
         调用模板和组件的处理函数处理打包好的请求
 
         Args:
-            url: URL字符串
+            path: 请求路径
             post_args: 传入参数
         Returns: 无
         Raises: 无
         '''
-        self.genRequest(url, post_args)
-        '''
+        log_debug('handle path({}) with post({})'.format(path, post_args))
+
+        self.gen_request(path, post_args)
 
         self.tmpl.handle(self.req_tmpl)
-        self.cmpt.handle(self.req_cmpt)
-
         '''
+        self.cmpt.handle(self.req_cmpt)
+        '''
+    
+    def conclude_response(self):
 
+        if self.req_tmpl.response:
+            tmp_out = open(self.req_tmpl.name, 'w')
+            tmp_out.write(self.req_tmpl.response)
+            tmp_out.close()
+            return self.req_tmpl.response
+        else:
+            log_error('try to get void response({})'.format(
+                    self.req_tmpl.response.__repr__()
+                ))
+            return ''

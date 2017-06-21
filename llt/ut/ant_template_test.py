@@ -5,12 +5,12 @@ from ant.template.manager import *
 from ant.common.log import *
 
 def _debug_(info):
-    print '\n'.join([
+    log_debug('\n'.join([
             '***** debug *****',
             info.__str__(),
             '****** end ******',
             '',
-        ])
+        ]))
 
 class TestMod(unittest.TestCase):
     def test_mod_parser(self):
@@ -31,11 +31,8 @@ class TestMod(unittest.TestCase):
         '''
 
     def test_manager(self):
-        tm = TemplateManager({
-                'dir': 'ut/res/',
-            })
+        tm = TemplateManager({'dir': 'ut/res/',})
         self.assertEqual(4, len(tm.mod_dict))
         '''
         _debug_(tm.mod_dict)
         '''
-        

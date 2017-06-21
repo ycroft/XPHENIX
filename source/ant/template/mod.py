@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from ant.common.error import *
+from ant.common.log import *
+
 import os
 import re
 
@@ -238,15 +240,25 @@ class Scanner(object):
 
     Attributes:
         mod_dict: 模板名称--对象字典
+        rsc_dict: 资源名称--资源文件路径
     '''
-    def __init__(self, scan_dir, res_dict = {}):
+    def __init__(self, scan_dir, mod_dict = {}, rsc_dict = {}):
         '''初始化时扫描目录
         '''
-        self.mod_dict = res_dict
+        self.mod_dict = mod_dict
+        self.rsc_dict = rsc_dict
         self.scan_mods_text(scan_dir)
         self.scan_mods_ref()
         self.check_mods_ref()
         self.open_mods_ref()
+        self.scan_rsc(scan_dir)
+
+        log_debug(('[template] manager initialized.' +
+            'dir({}), mod dict({}), css dict({}).').format(
+                scan_dir,
+                str(self.mod_dict),
+                str(self.rsc_dict),
+            ))
 
     def scan_mods_text(self, scan_dir):
         '''扫描文本
@@ -263,15 +275,39 @@ class Scanner(object):
             for file_name in file_list:
                 sufix = os.path.splitext(file_name)[1][1:]
 
-                if sufix != 'mod' and sufix != 'html':
+                if not self.is_mods(sufix):
                     continue
 
                 file_path = os.path.join(dir_name, file_name)
+
+                log_debug('[template]: scan a mod file({}).'.format(file_path))
                 mod = Mod(file_path)
                 if mod.name == '':
                     raise ScannerVoidModNameError()
-                self.mod_dict[mod.name] = mod;
+                self.mod_dict[mod.name] = mod
         pass
+    
+    def scan_rsc(self, scan_dir):
+        '''扫描资源文件
+
+        模板以外的资源的文件，仅获取路径
+
+        Args:
+            scan_dir: 扫描目录路径名称
+        Returns: 无
+        Errors: 无
+        '''
+
+        for dir_name, sub_dir_list, file_list in os.walk(scan_dir):
+            for file_name in file_list:
+                sufix = os.path.splitext(file_name)[1][1:]
+
+                if self.is_mods(sufix):
+                    continue
+
+                file_path = os.path.join(dir_name, file_name)
+
+                self.rsc_dict[file_name] = file_path
 
     def scan_mods_ref(self):
         '''建立模板引用
@@ -331,10 +367,10 @@ class Scanner(object):
         '''
         if not name in self.mod_dict:
             # debug info
-            return
+            return ''
         if not self.mod_dict[name].can_be_entry():
             # debug info
-            return
+            return ''
         
         mod_cursor = self.mod_dict[name]
         current_context = mod_cursor.context
@@ -343,4 +379,32 @@ class Scanner(object):
             mod_cursor = mod_cursor.parent
 
         return current_context
+
+    def generate_rsc(self, name):
+        '''读取资源文件内容
+
+        Args:
+            name: 资源文件名称
+
+        Returns:    无
+        Errors:     无
+        '''
+        file_path = self.rsc_dict[name]          # raise exception
+
+        file_handle = open(file_path, 'r')
+
+        log_debug('resource file open({}) at {}.'.format(file_path, file_handle))
+
+        ctxt = file_handle.read()
+        if not ctxt:
+            log_error('file({}) with no content.'.format(file_path))
+        file_handle.close()
+
+        return ctxt
+    
+    def is_mods(self, sufix):
+        if sufix == 'mod' or sufix == 'html':
+            return True
+
+        return False
 

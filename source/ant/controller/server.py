@@ -4,12 +4,12 @@
 
 '''
 import SocketServer
+import BaseHTTPServer
 
-class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class TcpServer(SocketServer.TCPServer):
     '''Tcp服务器
 
-    一个多线程TCP服务器，继承TreadingMixIn用于实现多线程，重载相关函数和实现方
-    法详见Socketerver.py
+    一个多线程TCP服务器，重载相关函数和实现方法详见Socketerver.py
 
     Attributes:
         address: 服务器地址
@@ -18,12 +18,13 @@ class TcpServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         dispatcher: 用于将请求定位的对象
         merger: 用于处理组件返回值并生成返回报文的对象
     '''
+
     def __init__(self, server_config):
         self.address = server_config.get('addr', 'localhost')
         self.port = server_config.get('port', 8888)
-        self.handler = server_config['handler']     # raise exception
-        self.dispatcher = None
-        self.merger = None
+        self.handler = server_config['handler']         # raise exception
+        self.dispatcher = server_config['dispatcher']   # raise exception
+        self.merger  = None
 
         SocketServer.TCPServer.__init__(self, (self.address, self.port),
                 self.handler)
