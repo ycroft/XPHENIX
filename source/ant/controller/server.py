@@ -5,8 +5,12 @@
 '''
 import SocketServer
 import BaseHTTPServer
+import httplib
 
-class TcpServer(SocketServer.TCPServer):
+from ant.common.task import Task
+from ant.common.log import *
+
+class TcpServer(SocketServer.TCPServer, Task):
     '''Tcp服务器
 
     一个多线程TCP服务器，重载相关函数和实现方法详见Socketerver.py
@@ -26,8 +30,27 @@ class TcpServer(SocketServer.TCPServer):
         self.dispatcher = server_config['dispatcher']   # raise exception
         self.merger  = None
 
+        Task.__init__(self)
+
+    def task_start(self, *args, **kwargs):
         SocketServer.TCPServer.__init__(self, (self.address, self.port),
                 self.handler)
+        self.serve()
+    
+    def ask_self(self):
+        try:
+            conn = httplib.HTTPConnection(self.address, self.port)
+            conn.request('GET', self.handler.keep_alive_url)
+            resp = conn.getresponse()
+            if resp.status == 200:
+                return True
+            else:
+                log_warning('ask self fail: response error({})'.format(resp.status))
+                return False
+            conn.close()
+        except Exception as e:
+            log_warning('ask self fail: {}'.format(str(e)))
+            return False
 
     def serve(self):
         '''启动函数
@@ -40,8 +63,8 @@ class TcpServer(SocketServer.TCPServer):
         '''
         try:
             self.serve_forever()
-        finally:
-            self.shutdown()
+        except Exception as e:
+            log_error('server start fail.')
 
     def finish_request(self, request, client_address):
         '''处理一次请求

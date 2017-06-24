@@ -330,7 +330,7 @@ class Scanner(object):
                         self.mod_dict[ref_name].refered_by = mod
                     for index, ref_name in enumerate(mod.ref_list):
                         mod.ref_list[index] = self.mod_dict[ref_name]
-        except e:
+        except Exception:
             raise ScannerModRelationError()
 
     def check_mods_ref(self):
@@ -356,7 +356,7 @@ class Scanner(object):
         '''
         for mod_name, mod in self.mod_dict.items():
             mod.open_tag_ref()
-
+    
     def generate_html(self, name):
         '''生成HTML
 
