@@ -111,12 +111,9 @@ class Dispatcher(object):
         self.cmpt.handle(self.req_cmpt)
         '''
     
-    def conclude_response(self):
+    def get_response_text(self):
 
         if self.req_tmpl.response:
-            tmp_out = open(self.req_tmpl.name, 'w')
-            tmp_out.write(self.req_tmpl.response)
-            tmp_out.close()
             return self.req_tmpl.response
         else:
             log_error('try to get void response({})'.format(

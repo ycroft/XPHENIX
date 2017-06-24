@@ -8,6 +8,8 @@ from ant.controller.xchg import *
 
 from ant.template.manager import *
 
+from ant.common.task import Monitor
+
 HANDLER_CONFIG_FILE_PATH = './handler.cfg'
 TEMPLATE_DIR = '../../static/'
 
@@ -26,4 +28,5 @@ if __name__ == '__main__':
             'dispatcher': disp,
         })
 
-    server.serve()
+    monitor = Monitor(server)
+    monitor.start_and_watch()

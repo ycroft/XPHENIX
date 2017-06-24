@@ -9,6 +9,9 @@ import os
 import urlparse
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    
+    keep_alive_url = 'feed_dog'
+
     def __init__(self, request, client_address, server,
             dispatcher, merger):
 
@@ -29,15 +32,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         log_debug('==========================================================')
 
     def do_GET(self):
-        self._debug_print_context()
 
         if self.do_default_filter(): return
+
+        self._debug_print_context()
 
         '''
         try:
             parsed_path = urlparse.urlparse(self.path).path
             self.dispatcher.dispatch(parsed_path)
-            resp_text = self.dispatcher.conclude_response()
+            resp_text = self.dispatcher.get_response_text()
             self.send_resp_header(len(resp_text))
             self.write_context(resp_text)
         except Exception as e:
@@ -46,7 +50,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         parsed_path = urlparse.urlparse(self.path).path
         self.dispatcher.dispatch(parsed_path)
-        resp_text = self.dispatcher.conclude_response()
+        resp_text = self.dispatcher.get_response_text()
         self.send_resp_header(len(resp_text))
         self.write_context(resp_text)
     
@@ -109,7 +113,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_default_filter(self):
 
-        if self.path == '/favicon.ico':
+        ommit_urls = ['/favicon.ico', self.keep_alive_url]
+
+        if self.path in ommit_urls:
             self.send_resp()
             return True
         
