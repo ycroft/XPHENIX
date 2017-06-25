@@ -7,6 +7,8 @@ from ant.common.request import ComponentRequest
 from ant.common.request import TemplateRequest
 from ant.common.log import *
 
+from ant.template.mod import PATTERN
+
 import ConfigParser
 import os
 import re
@@ -51,7 +53,6 @@ class Dispatcher(object):
             ConfigParseError: 解析配置文件错误
         '''
         rsc_name = ''
-        args = {}
 
         for k, v in self.config.items('page'):
             sres = re.search(v, path)
@@ -73,23 +74,65 @@ class Dispatcher(object):
         self.req_tmpl = TemplateRequest(self.config.get('template', rsc_name))
         self.req_cmpt = ComponentRequest(self.config.get('component', rsc_name))
 
-        if not post_args: return
+        if post_args:
+            self.req_tmpl.add_vars(post_args)
+            self.req_cmpt.add_vars(post_args)
+
+        if not self.config.has_option('var_list', rsc_name):
+            return
 
         var_list = self.config.get('var_list', rsc_name).split(',')
 
         if len(var_list) != len(sres.groups()):         # path中的参数个数和配置
             raise ConfigParseError()                    # 中的参数个数不匹配
 
+        args = {}
         for index, var_name in enumerate(var_list):
             var_name = var_name.strip()                 # 处理包含在path中的
             args[var_name] = sres.group(index + 1)      # 传入参数
 
-        for k, v in post_args.items:
-            if k in args: raise ConfigParseError()      # POST参数和path参数冲突
-            args[k] = v                                 # 用post_args扩展列表
+        self.req_tmpl.add_vars(args)
+        self.req_cmpt.add_vars(args)
+    
+    def _proc_vars(self, html, args):
+        search_res = PATTERN.r_VAR.findall(html)
 
-        self.req_tmpl.set_var(args)
-        self.req_cmpt.set_var(args)
+        if not search_res:
+            return ''
+
+        var_list = [e for e in search_res]
+
+        args_need = {}
+        for var_name in var_list:
+
+            if not var_name in args:
+                log_error('var({}) not found in service response.'.format(var_name))
+                raise MergeResponseError()
+
+            log_debug('{} will be replaced by {}'.format(var_name, args[var_name]))
+            args_need['_var_' + var_name] = args[var_name]
+
+        res = PATTERN.r_VAR.sub(r'{_var_\1}', html)
+        return res.format(**args_need)
+    
+    def _merge_request(self):
+
+        static_context = self.req_tmpl.response
+        active_context = self.req_cmpt.response
+
+        static_context = self._proc_vars(static_context, active_context)
+
+        return static_context
+    
+    def conclude_result(self):
+        if not self.req_tmpl.response:
+            log_error('Dispatcher: try to conclude void response text.')
+            return ''
+        
+        if (not self.req_cmpt) or (not self.req_cmpt.response):
+            return self.req_tmpl.response
+        
+        return self._merge_request()
 
     def dispatch(self, path, post_args = {}):
         '''分发
@@ -107,16 +150,15 @@ class Dispatcher(object):
         self.gen_request(path, post_args)
 
         self.tmpl.handle(self.req_tmpl)
-        '''
         self.cmpt.handle(self.req_cmpt)
-        '''
     
     def get_response_text(self):
 
-        if self.req_tmpl.response:
-            return self.req_tmpl.response
+        content = self.conclude_result()
+        if content:
+            return content
         else:
             log_error('try to get void response({})'.format(
-                    self.req_tmpl.response.__repr__()
+                    content
                 ))
             return ''

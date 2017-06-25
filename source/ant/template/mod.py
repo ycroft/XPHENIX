@@ -9,7 +9,7 @@ import re
 class PATTERN:
     '''正则表达式
     '''
-    TAG = r'{{{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}}}\n'   # 匹配标签
+    TAG = r'{{{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}}}'     # 匹配标签
     
     r_CHILD = re.compile(r'{{ac}}')                     # 子模板嵌入标签
     r_NAME = re.compile(TAG.format(tag='name'))         # 模板名称标签

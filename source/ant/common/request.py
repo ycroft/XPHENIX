@@ -1,17 +1,26 @@
 
+from ant.common.error import *
+
 class REQ_TYPE:
     HTTP, \
     TMPL, \
     CMPT = range(3)
 
 class CommonRequest(object):
+
     def __init__(self, req_type):
         self.req_type = req_type
         self.var_list = {}
         self.response = None
     
-    def set_var(self, var_list):
-        self.var_list = var_list
+    def add_vars(self, var_list):
+
+        for k, v in var_list.items():
+
+            if k in self.var_list:
+                raise ConfigParseError()
+            
+            self.var_list[k] = v
 
     def __str__(self):
         return '; '.join([

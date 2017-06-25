@@ -8,7 +8,11 @@ from ant.controller.xchg import *
 
 from ant.template.manager import *
 
+from ant.component.manager import *
+
 from ant.common.task import Monitor
+
+from backend import *
 
 HANDLER_CONFIG_FILE_PATH = './handler.cfg'
 TEMPLATE_DIR = '../../static/'
@@ -18,7 +22,10 @@ if __name__ == '__main__':
     disp = Dispatcher(
             HANDLER_CONFIG_FILE_PATH,
             TemplateManager({'dir': TEMPLATE_DIR,}),
-            None
+            ServiceManager({
+                    'backend_login': handle_page_login,
+                    'user_login': handle_action_login,
+                })
         )
 
     server = TcpServer({

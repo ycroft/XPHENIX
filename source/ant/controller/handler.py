@@ -55,7 +55,19 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.write_context(resp_text)
     
     def do_POST(self):
-        pass
+        self._debug_print_context()
+
+        post_data = self.rfile.read(int(self.headers['Content-length']))
+        parsed_path = urlparse.urlparse(self.path).path
+        
+        args = {}
+        for k_v in [e.split('=') for e in post_data.split('&')]:
+            args[k_v[0]] = k_v[1]
+        
+        self.dispatcher.dispatch(parsed_path, args)
+        resp_text = self.dispatcher.get_response_text()
+        self.send_resp_header(len(resp_text))
+        self.write_context(resp_text)
     
     def do_PUT(self):
         pass

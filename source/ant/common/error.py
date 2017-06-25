@@ -7,6 +7,8 @@
 class ControllerError(Exception): pass
 # 配置文件解析异常
 class ConfigParseError(ControllerError): pass
+# 合并请求结果异常
+class MergeResponseError(ControllerError): pass
 
 # 模板异常
 class TemplateError(Exception): pass
