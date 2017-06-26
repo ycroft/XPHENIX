@@ -17,7 +17,7 @@ class PATTERN:
     r_INSERT = re.compile(TAG.format(tag='insert'))     # 模板嵌入标签
     r_VAR = re.compile(TAG.format(tag='var'))           # 变量嵌入标签
     r_LIST_START = re.compile(TAG.format(tag='sl'))     # 列表开始标签
-    r_LIST_ELE = re.compile(TAG.format(tag='ele')       # 列表元素标签
+    r_LIST_ELE = re.compile(TAG.format(tag='ele'))      # 列表元素标签
     r_LIST_END = re.compile(r'{{el}}')                  # 列表结束标签
 
 '''
