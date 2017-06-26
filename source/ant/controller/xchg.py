@@ -98,7 +98,7 @@ class Dispatcher(object):
         search_res = PATTERN.r_VAR.findall(html)
 
         if not search_res:
-            return ''
+            return html
 
         var_list = [e for e in search_res]
 
@@ -114,6 +114,35 @@ class Dispatcher(object):
 
         res = PATTERN.r_VAR.sub(r'{_var_\1}', html)
         return res.format(**args_need)
+
+    def _proc_lists(self, html, args):
+
+        cursor = 0
+        list_info = {}
+        search_res = PATTERN.r_LIST_START.search(html, cursor)
+
+        if not search:
+            return html
+
+        while search_res:
+            list_name = search_res.group(0)
+            cursor = search_res.end()
+            list_start = cursor
+
+            search_res = PATTERN.r_LIST_END.search(html, cursor)
+            if not search_res:
+                log_error('list({}) structure is broken.'.format(list_name))
+                raise MergeResponseError()
+            if list_name in list_info:
+                log_error('list({}) is repeated.'.format(list_name))
+                raise MergeResponseError()
+
+            cursor = search_res.start()
+            list_end = cursor
+            elements = PATTERN.r_LIST_ELE.findall(html, list_start, list_end)
+            list_info[list_name] = [(list_start, list_end), elements]
+
+            search_res = PATTERN.r_LIST_START.search(html, cursor)
     
     def _merge_request(self):
 
@@ -151,7 +180,7 @@ class Dispatcher(object):
 
         self.tmpl.handle(self.req_tmpl)
         self.cmpt.handle(self.req_cmpt)
-    
+
     def get_response_text(self):
 
         content = self.conclude_result()
@@ -162,3 +191,4 @@ class Dispatcher(object):
                     content
                 ))
             return ''
+

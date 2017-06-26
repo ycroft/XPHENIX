@@ -1,0 +1,32 @@
+{{name control_panel_page}}
+
+<html>
+    <head>
+        <title>Control Panel</title>
+    </head>
+    <body>
+        <div>Hello, {{var admin_name}}.</div>
+        <div>
+            <div>User Table</div>
+            <table>
+                <tr>
+                    <th>user id</th>
+                    <th>login name</th>
+                    <th>password</th>
+                    <th>nick name</th>
+                    <th>last login</th>
+                </tr>
+            {{sl db_user_list}}
+                <tr>
+                    <td>{{ele user_id}}</td>
+                    <td>{{ele login_name}}</td>
+                    <td>{{ele password}}</td>
+                    <td>{{ele nick_name}}</td>
+                    <td>{{ele last_login}}</td>
+                </tr>
+            {{el}}
+            </table>
+        </div>
+    </body>
+</html>
+
