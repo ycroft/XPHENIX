@@ -37,3 +37,4 @@ if __name__ == '__main__':
 
     monitor = Monitor(server)
     monitor.start_and_watch()
+

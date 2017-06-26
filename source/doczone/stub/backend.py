@@ -2,9 +2,9 @@
 def handle_page_login(args):
 
     if args['entry_type'] == 'signin':
-        panel_title = 'SIGN IN'
+        panel_title = 'DOC ZONE'
     elif args['entry_type'] == 'signup':
-        panel_title = 'SIGN UP'
+        panel_title = 'DOC ZONE'
     else:
         return None
 
