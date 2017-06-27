@@ -24,6 +24,7 @@ if __name__ == '__main__':
             TemplateManager({'dir': TEMPLATE_DIR,}),
             ServiceManager({
                     'backend_login': handle_page_login,
+                    'backend_control_panel': handle_page_control_panel,
                     'user_login': handle_action_login,
                 })
         )

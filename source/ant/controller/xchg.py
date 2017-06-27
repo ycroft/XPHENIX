@@ -112,29 +112,33 @@ class Dispatcher(object):
             log_debug('{} will be replaced by {}'.format(var_name, args[var_name]))
             args_need['_var_' + var_name] = args[var_name]
 
-        res = PATTERN.r_VAR.sub(r'{_var_\1}', html)
-        return res.format(**args_need)
+        return PATTERN.r_VAR.sub(r'{_var_\1}', html).format(**args_need)
 
-    def _proc_lists(self, html, args):
-
+    def _preproc_lists(self, html, args):
         cursor = 0
         list_info = {}
         search_res = PATTERN.r_LIST_START.search(html, cursor)
 
-        if not search:
-            return html
+        if not search_res:
+            return None
 
         while search_res:
-            list_name = search_res.group(0)
+            list_name = search_res.group(1)
             cursor = search_res.end()
             list_start = cursor
 
+            log_debug('find list: {}'.format(list_name))
+
             search_res = PATTERN.r_LIST_END.search(html, cursor)
+
             if not search_res:
                 log_error('list({}) structure is broken.'.format(list_name))
                 raise MergeResponseError()
             if list_name in list_info:
                 log_error('list({}) is repeated.'.format(list_name))
+                raise MergeResponseError()
+            if not list_name in args:
+                log_error('list({}) info is not in given args{}.'.format(list_name, args))
                 raise MergeResponseError()
 
             cursor = search_res.start()
@@ -143,6 +147,47 @@ class Dispatcher(object):
             list_info[list_name] = [(list_start, list_end), elements]
 
             search_res = PATTERN.r_LIST_START.search(html, cursor)
+
+        log_debug('get list info: {}'.format(list_info))
+        prepare_for_replace = {}
+        for list_struct in list_info.items():
+
+            content = PATTERN.r_LIST_ELE.sub(r'{}', html[list_struct[0][0] : list_struct[0][1]])
+            if len(list_struct[1]) != len(args[list_name]):
+                log_error('list({}) and args{} does not have the same length.'.format(list_name, args))
+                raise MergeResponseError()
+
+            repeated_content = "\n".join([content.format(tl) for tl in args[list_name]])
+            prepare_for_replace[list_name] = repeated_content
+
+        return prepare_for_replace
+
+    def _proc_lists(self, html, args):
+        
+        list_content = self._preproc_lists(html, args)
+
+        if not list_content:
+            return html
+
+        cursor = 0
+        search_res = PATTERN.r_LIST_START.search(html, cursor)
+        result = ''
+        list_start = list_end = 0
+        while search_res:
+            list_name = search_res.group(0)
+            cursor = search_res.start()
+            list_start = cursor
+            
+            result += result + html[list_end : list_start] + list_content[list_name]
+
+            search_res = PATTERN.r_LIST_END.search(html, cursor)
+            cursor = search_res.end()
+            list_end = cursor
+            elements = PATTERN.r_LIST_ELE.findall(html, list_start, list_end)
+            list_info[list_name] = [(list_start, list_end), elements]
+            search_res = PATTERN.r_LIST_START.search(html, cursor)
+
+        return result
     
     def _merge_request(self):
 
@@ -150,6 +195,7 @@ class Dispatcher(object):
         active_context = self.req_cmpt.response
 
         static_context = self._proc_vars(static_context, active_context)
+        static_context = self._proc_lists(static_context, active_context)
 
         return static_context
     

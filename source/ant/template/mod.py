@@ -9,16 +9,17 @@ import re
 class PATTERN:
     '''正则表达式
     '''
-    TAG = r'{{{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}}}'     # 匹配标签
+    TAG_L1 = r'{{{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}}}'  # 匹配标签
+    TAG_L2 = r'{{{tag} ([a-zA-Z_][a-zA-Z0-9_]*)}}'      # 匹配标签
     
     r_CHILD = re.compile(r'{{ac}}')                     # 子模板嵌入标签
-    r_NAME = re.compile(TAG.format(tag='name'))         # 模板名称标签
-    r_FROM = re.compile(TAG.format(tag='from'))         # 模板继承标签
-    r_INSERT = re.compile(TAG.format(tag='insert'))     # 模板嵌入标签
-    r_VAR = re.compile(TAG.format(tag='var'))           # 变量嵌入标签
-    r_LIST_START = re.compile(TAG.format(tag='sl'))     # 列表开始标签
-    r_LIST_ELE = re.compile(TAG.format(tag='ele'))      # 列表元素标签
-    r_LIST_END = re.compile(r'{{el}}')                  # 列表结束标签
+    r_NAME = re.compile(TAG_L1.format(tag='name'))      # 模板名称标签
+    r_FROM = re.compile(TAG_L1.format(tag='from'))      # 模板继承标签
+    r_INSERT = re.compile(TAG_L1.format(tag='insert'))  # 模板嵌入标签
+    r_VAR = re.compile(TAG_L1.format(tag='var'))        # 变量嵌入标签
+    r_LIST_START = re.compile(TAG_L2.format(tag='sl'))  # 列表开始标签
+    r_LIST_ELE = re.compile(TAG_L2.format(tag='ele'))   # 列表元素标签
+    r_LIST_END = re.compile(r'{el}')                    # 列表结束标签
 
 '''
 
