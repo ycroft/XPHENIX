@@ -150,14 +150,14 @@ class Dispatcher(object):
 
         log_debug('get list info: {}'.format(list_info))
         prepare_for_replace = {}
-        for list_struct in list_info.items():
+        for list_name, list_struct in list_info.items():
 
             content = PATTERN.r_LIST_ELE.sub(r'{}', html[list_struct[0][0] : list_struct[0][1]])
             if len(list_struct[1]) != len(args[list_name]):
                 log_error('list({}) and args{} does not have the same length.'.format(list_name, args))
                 raise MergeResponseError()
 
-            repeated_content = "\n".join([content.format(tl) for tl in args[list_name]])
+            repeated_content = "\n".join([content.format(*tl) for tl in args[list_name]])
             prepare_for_replace[list_name] = repeated_content
 
         return prepare_for_replace
@@ -174,7 +174,7 @@ class Dispatcher(object):
         result = ''
         list_start = list_end = 0
         while search_res:
-            list_name = search_res.group(0)
+            list_name = search_res.group(1)
             cursor = search_res.start()
             list_start = cursor
             
@@ -184,7 +184,6 @@ class Dispatcher(object):
             cursor = search_res.end()
             list_end = cursor
             elements = PATTERN.r_LIST_ELE.findall(html, list_start, list_end)
-            list_info[list_name] = [(list_start, list_end), elements]
             search_res = PATTERN.r_LIST_START.search(html, cursor)
 
         return result

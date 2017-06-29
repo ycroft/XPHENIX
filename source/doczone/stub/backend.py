@@ -14,8 +14,7 @@ def handle_page_login(args):
         }
 
 def handle_action_login(args):
-
-    print args
+    pass
 
 def handle_page_control_panel(args):
     return {
