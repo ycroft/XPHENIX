@@ -15,10 +15,11 @@
         <!-- login panel -->
         <div class="login">
             <div class="title">{{var panel_title}}</div>
-            <div class="white-span"></div>
+            <div class="white-span-{{var panel_layout}}"></div>
 
+            {{sw panel_layout}}
+            {{case signin}}
             <form id="formUserInfo" name="user_info" method="POST" action="/action_login/">
-
             <div class="input-box" type="input">
                 <div class="input-icon"><i class="icon-user normal"></i></div>
                 <input id="inputUserName" type="text" class="text-box" name="user_name"/>
@@ -27,12 +28,30 @@
                 <div class="input-icon"><i class="icon-keyboard normal"></i></div>
                 <input id="inputUserPswd" type="password" class="text-box" name="user_pwd"/>
             </div>
-
             </form>
 
             <div class="button signup" onclick="userSignUp()">Sign up</div>
-            <div class="button signin" onclick="userSignIn()">Sign in</div>
+            <div class="button signin" onclick="gotoSignIn()">Sign in</div>
+            {{case signup}}
+            <form id="formUserInfo" name="user_info" method="POST" action="/action_login/">
+            <div class="input-box" type="input">
+                <div class="input-icon"><i class="icon-user normal"></i></div>
+                <input id="inputUserName" type="text" class="text-box" name="user_name"/>
+            </div>
+            <div class="input-box">
+                <div class="input-icon"><i class="icon-keyboard normal"></i></div>
+                <input id="inputUserPswd" type="password" class="text-box" name="user_pwd"/>
+            </div>
+            <div class="input-box">
+                <div class="input-icon"><i class="icon-keyboard normal"></i></div>
+                <input id="inputUserPswdAgain" type="password" class="text-box" name="user_pwd_ack"/>
+            </div>
+            </form>
+
+            <div class="button-full-span" onclick="userSignUp()">Sign up</div>
+            {{es}}
         </div>
         <!-- end of login panel -->
     </body>
 </html>
+

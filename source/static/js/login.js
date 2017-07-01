@@ -12,3 +12,9 @@ function userSignIn()
 
     document.getElementById('formUserInfo').submit()
 }
+
+function gotoSignUp()
+{
+    window.location.href='/doczone/login/signup/'
+}
+

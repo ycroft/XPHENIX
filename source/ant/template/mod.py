@@ -17,9 +17,13 @@ class PATTERN:
     r_FROM = re.compile(TAG_L1.format(tag='from'))      # 模板继承标签
     r_INSERT = re.compile(TAG_L1.format(tag='insert'))  # 模板嵌入标签
     r_VAR = re.compile(TAG_L1.format(tag='var'))        # 变量嵌入标签
+
     r_LIST_START = re.compile(TAG_L2.format(tag='sl'))  # 列表开始标签
     r_LIST_ELE = re.compile(TAG_L2.format(tag='ele'))   # 列表元素标签
     r_LIST_END = re.compile(r'{el}')                    # 列表结束标签
+    r_SWITCH = re.compile(TAG_L2.format(tag='sw'))      # 分支语句起始标签
+    r_CASE = re.compile(TAG_L2.format(tag='case'))      # 分支语句标签
+    r_SWITCH_END = re.compile(r'{es}')                    # 分支语句结束标签
 
 '''
 

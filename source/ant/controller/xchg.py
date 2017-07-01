@@ -178,13 +178,123 @@ class Dispatcher(object):
             cursor = search_res.start()
             list_start = cursor
             
-            result += result + html[list_end : list_start] + list_content[list_name]
+            result = result + html[list_end : list_start] + list_content[list_name]
 
             search_res = PATTERN.r_LIST_END.search(html, cursor)
             cursor = search_res.end()
             list_end = cursor
             elements = PATTERN.r_LIST_ELE.findall(html, list_start, list_end)
             search_res = PATTERN.r_LIST_START.search(html, cursor)
+
+        result = result + html[list_end :]
+
+        return result
+
+    def _preproc_switches(self, html, args):
+
+        cursor = 0
+        switch_tags = PATTERN.r_SWITCH.search(html, cursor)
+        switch_info = []
+
+        if not switch_tags:
+            return None
+
+        while switch_tags:
+
+            switch_name = switch_tags.group(1)
+            cursor = switch_tags.end()
+            switch_start = cursor
+
+            switch_tags = PATTERN.r_SWITCH_END.search(html, cursor)
+
+            if not switch_tags:
+                log_error('switch({}) structure is broken.'.format(switch_name))
+                raise MergeResponseError()
+            if not switch_name in args:
+                log_error('switch({}) info is not in given args{}.'.format(switch_name, args))
+                raise MergeResponseError()
+
+            cursor = switch_tags.start()
+            switch_end = cursor
+            switch_info.append([switch_name, (switch_start, switch_end),])
+            switch_tags = PATTERN.r_SWITCH.search(html, cursor)
+
+        for item in switch_info:
+            name = item[0]
+
+            cursor = start = item[1][0]
+            stop = item[1][1]
+
+            case_tags = PATTERN.r_CASE.search(html, cursor, stop)
+
+            if not case_tags:
+                log_error(''.join(['switch({}) structure must have one case at least.',
+                        'switch structure starts from {} and ends at {}.',]).format(
+                                switch_name, start, stop))
+                raise MergeResponseError()
+
+            case_info = {}
+            case_start = case_end = 0
+
+            while case_tags:
+                cursor = case_tags.end()
+                if case_start == 0:
+                    case_start = case_end = cursor
+                    case_name = case_tags.group(1)
+                else:
+                    case_end = case_tags.start()
+                    case_info[case_name] = (case_start, case_end)
+                    case_start = cursor
+                    case_name = case_tags.group(1)
+
+                case_tags = PATTERN.r_CASE.search(html, cursor, stop)
+
+            case_end = stop
+            case_info[case_name] = (case_start, case_end)
+
+            item.append(case_info)
+
+        log_debug('finish collecting switch_info: {}'.format(switch_info))
+        return switch_info
+
+    def _proc_switches(self, html, args):
+
+        switch_info = self._preproc_switches(html, args)
+
+        if not switch_info:
+            return html
+
+        cursor = 0
+        result = ''
+        search_res = PATTERN.r_SWITCH.search(html, cursor)
+        start = end = cursor
+
+        info_idx = 0
+
+        while search_res:
+            name = search_res.group(1)
+            cursor = search_res.start()
+            start = cursor
+            info = switch_info[info_idx]
+
+            if name != info[0]:
+                raise MergeResponseError()
+            if not args[name] in info[2]:
+                log_error('args({}) not in the switch({}) with cases({})'.format(args[name], name, info))
+                raise MergeResponseError()
+
+            content_info = info[2][args[name]]
+            switch_content = html[content_info[0] : content_info[1]]
+
+            result = result + html[end : start] + switch_content
+
+            search_res = PATTERN.r_SWITCH_END.search(html, cursor)
+            cursor = search_res.end()
+            end = cursor
+
+            search_res = PATTERN.r_SWITCH.search(html, cursor)
+
+        result = result + html[end:]
 
         return result
     
@@ -195,6 +305,7 @@ class Dispatcher(object):
 
         static_context = self._proc_vars(static_context, active_context)
         static_context = self._proc_lists(static_context, active_context)
+        static_context = self._proc_switches(static_context, active_context)
 
         return static_context
     

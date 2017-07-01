@@ -35,10 +35,16 @@ div
     text-align: center;
 }
 
-.login .white-span
+.login .white-span-signin
 {
     width: auto;
     height: 80px;
+}
+
+.login .white-span-signup
+{
+    width: auto;
+    height: 22px;
 }
 
 .login .input-box
@@ -104,6 +110,20 @@ div
     cursor: pointer;
 }
 
+.login .button-full-span
+{
+    width: auto;
+    height: 30px;
+    background: linear-gradient(#6892ED, #4F7FE8);
+    margin-top: 30px;
+    line-height: 30px;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
 .login .signup
 {
     margin-left: 0px;
@@ -117,6 +137,11 @@ div
 }
 
 .login .button:hover
+{
+    background: #4F7FE8;
+}
+
+.login .button-full-span:hover
 {
     background: #4F7FE8;
 }
