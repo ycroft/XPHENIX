@@ -32,7 +32,7 @@ class TestDbApi(unittest.TestCase):
             })
 
         # 表已经存在
-        self.assertEquals(res, None)
+        self.assertNotEquals(res, None)
     
     def test_db_insert(self):
         with Connection():
