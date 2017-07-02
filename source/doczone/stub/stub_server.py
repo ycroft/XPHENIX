@@ -10,28 +10,30 @@ from ant.template.manager import *
 
 from ant.component.manager import *
 
+from ant.common.dbapi import create_sqlite_engine
 from ant.common.task import Monitor
 
-from backend import *
+import backend
+from doczone.mod.models import MODEL_LIST
 
 HANDLER_CONFIG_FILE_PATH = './handler.cfg'
 TEMPLATE_DIR = '../../static/'
+DATA_BASE_FILE = './stub_db'
 
 if __name__ == '__main__':
+
+    create_sqlite_engine(DATA_BASE_FILE)
 
     disp = Dispatcher(
             HANDLER_CONFIG_FILE_PATH,
             TemplateManager({'dir': TEMPLATE_DIR,}),
-            ServiceManager({
-                    'backend_login': handle_page_login,
-                    'backend_control_panel': handle_page_control_panel,
-                    'user_login': handle_action_login,
-                })
+            ServiceManager({'handler': backend,}),
         )
 
     server = TcpServer({
             'addr': '127.0.0.1',
             'port': 8888,
+            'models': MODEL_LIST,
             'handler': RequestHandler,
             'dispatcher': disp,
         })

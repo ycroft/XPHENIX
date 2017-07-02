@@ -280,7 +280,7 @@ def db_create_table(table_name, field_dict):
             return
 
     str_fields = ', '.join([e[0] + ' ' +  e[1] for e in name_pair])
-    sql = "CREATE TABLE {} ({})".format(table_name, str_fields)
+    sql = "CREATE TABLE IF NOT EXISTS {} ({})".format(table_name, str_fields)
 
     log_debug("execute sql(\"{}\")".format(sql))
 
@@ -290,6 +290,23 @@ def db_create_table(table_name, field_dict):
         return connection_context.get_cursor()
     except Exception as e:
         log_notice("create table failed: " + str(e))
+
+@with_connection
+def db_table_exist(table_name):
+    global connection_context
+    try:
+        connection_context.execute(sql)
+        connection_context.execute_end()
+        result = connection_context.get_cursor().fetchall()
+
+        if result:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        log_notice("detect table failed: " + str(e))
+        return False
 
 @with_connection
 def db_select(table_name_list, col_list='*', conditions=''):

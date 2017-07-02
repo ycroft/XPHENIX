@@ -28,7 +28,7 @@ class TcpServer(SocketServer.TCPServer, Task):
         self.port = server_config.get('port', 8888)
         self.handler = server_config['handler']         # raise exception
         self.dispatcher = server_config['dispatcher']   # raise exception
-        self.merger  = None
+        self.model_init(server_config['models'])
 
         Task.__init__(self)
 
@@ -51,6 +51,15 @@ class TcpServer(SocketServer.TCPServer, Task):
         except Exception as e:
             log_warning('ask self fail: {}'.format(str(e)))
             return False
+
+    def model_init(self, models):
+        for mod in models:
+            if not mod.create():
+                log_exception('create db error when create table({})'.format(
+                        mod.to_str(),
+                    ))
+            
+            log_debug('mod({}) was loaded.'.format(mod.to_str()))
 
     def serve(self):
         '''启动函数
@@ -85,5 +94,4 @@ class TcpServer(SocketServer.TCPServer, Task):
             client_address,
             self,
             self.dispatcher,
-            self.merger
         )

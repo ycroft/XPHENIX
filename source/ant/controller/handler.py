@@ -13,10 +13,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     keep_alive_url = 'feed_dog'
 
     def __init__(self, request, client_address, server,
-            dispatcher, merger):
+            dispatcher):
 
         self.dispatcher = dispatcher
-        self.merger = merger
 
         BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request,
                 client_address, server)

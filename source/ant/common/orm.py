@@ -30,11 +30,28 @@ class Model(dict):
     def __init__(self, **keys):
         dict.__init__(self, **keys)
     
+    @classmethod
+    def to_str(cls):
+        return ';'.join([
+            'model name={}',
+            'fields={}',
+        ]).format(cls._table_name_, cls._field_def_)
+    
     def insert(self):
         with Connection():
             res = db_insert(self._table_name_, self)
 
         return res and True or False
+
+    @classmethod
+    def create(cls):
+        with Connection():
+            res = db_create_table(cls._table_name_, cls._field_def_)
+        
+        if res:
+            return True
+        else:
+            return False
     
     @classmethod
     def _get_condition_expr(cls, key, value_list):

@@ -19,7 +19,7 @@
 
             {{sw panel_layout}}
             {{case signin}}
-            <form id="formUserInfo" name="user_info" method="POST" action="/action_login/">
+            <form id="formUserInfo" name="user_info" method="POST" action="/action_signin/">
             <div class="input-box" type="input">
                 <div class="input-icon"><i class="icon-user normal"></i></div>
                 <input id="inputUserName" type="text" class="text-box" name="user_name"/>
@@ -30,10 +30,10 @@
             </div>
             </form>
 
-            <div class="button signup" onclick="userSignUp()">Sign up</div>
-            <div class="button signin" onclick="gotoSignIn()">Sign in</div>
+            <div class="button signup" onclick="gotoSignUp()">Sign up</div>
+            <div class="button signin" onclick="userSignIn()">Sign in</div>
             {{case signup}}
-            <form id="formUserInfo" name="user_info" method="POST" action="/action_login/">
+            <form id="formUserInfo" name="user_info" method="POST" action="/action_signup/">
             <div class="input-box" type="input">
                 <div class="input-icon"><i class="icon-user normal"></i></div>
                 <input id="inputUserName" type="text" class="text-box" name="user_name"/>

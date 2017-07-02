@@ -3,8 +3,8 @@ from ant.common.log import *
 
 class ServiceManager(object):
 
-    def __init__(self, handle_list = {}):
-        self.handle_list = handle_list
+    def __init__(self, config):
+        self.handler = config['handler']
     
     def reg_service(self, name, handle):
         if name in self.handler_list:
@@ -20,8 +20,8 @@ class ServiceManager(object):
             log_debug('[service]:do not need to get service response.')
             return
 
-        if request.name in self.handle_list:
-            response = self.handle_list[request.name](request.var_list)
+        if request.name in dir(self.handler):
+            response = eval('self.handler.' + request.name + '(request.var_list)')
             request.write_response(response)
 
             if not response:

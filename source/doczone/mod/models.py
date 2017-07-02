@@ -1,5 +1,7 @@
 
-from ant.commom.orm import Model
+from ant.common.dbapi import NumberField
+from ant.common.dbapi import StringField
+from ant.common.orm import Model
 
 MAX_UINT8 = 0xFF
 MAX_UINT16 = 0xFFFF
@@ -11,6 +13,7 @@ class User(Model):
     login_name = StringField(len=255)
     password = StringField(len=32)
     nick_name = StringField(len=255)
-    user_info = StirngField(len=1024)
+    user_info = StringField(len=1024)
     last_login = NumberField(size=MAX_UINT64)
 
+MODEL_LIST = [User, ]

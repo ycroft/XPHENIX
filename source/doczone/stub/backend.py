@@ -1,7 +1,10 @@
 
 def handle_page_login(args):
 
-    if args['entry_type'] == 'signin':
+    if not 'entry_type' in args:
+        panel_title = 'DOC ZONE'
+        panel_layout = 'signin'
+    elif args['entry_type'] == 'signin':
         panel_title = 'DOC ZONE'
         panel_layout = 'signin'
     elif args['entry_type'] == 'signup':
@@ -16,7 +19,10 @@ def handle_page_login(args):
             'panel_layout': panel_layout,
         }
 
-def handle_action_login(args):
+def handle_action_signup(args):
+    pass
+
+def handle_action_signin(args):
     pass
 
 def handle_page_control_panel(args):
