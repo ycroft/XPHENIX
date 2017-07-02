@@ -42,6 +42,14 @@ function userSignUp()
         alertAtDom('pwd ack is not the same as pwd', null)
         return
     }
+
+    if(userPswd.length < 6)
+    {
+        alertAtDom('the length of pwd is less than 6', null)
+        return
+    }
+
+    document.getElementById('formUserInfo').submit()
 }
 
 function gotoSignUp()

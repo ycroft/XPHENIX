@@ -20,6 +20,7 @@ def handle_page_login(args):
         }
 
 def handle_action_signup(args):
+    print args
     pass
 
 def handle_action_signin(args):

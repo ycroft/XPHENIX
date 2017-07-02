@@ -17,3 +17,4 @@ class User(Model):
     last_login = NumberField(size=MAX_UINT64)
 
 MODEL_LIST = [User, ]
+
