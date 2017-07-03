@@ -18,7 +18,6 @@ class StringField(DataBaseField):
     def __init__(self, **args):
         DataBaseField.__init__(self, args.get('is_pk', False))
         self.str_len = args.get('len', 255)
-        self.str_le = len
 
 class TextField(DataBaseField):
     def __init__(self, **args):
@@ -28,6 +27,7 @@ class NumberField(DataBaseField):
     def __init__(self, **args):
         DataBaseField.__init__(self, args.get('is_pk', False))
         self.size = args.get('size', 255)
+        self.auto_inc = args.get('auto_inc', False)
 
 class BoolField(DataBaseField):
     def __init__(self, **args):
@@ -111,12 +111,50 @@ class SqliteConnection(object):
         self.db_name = db_name
         self.conn = None
         self.cursor = None
-        self.type_map = {
-            StringField : 'TEXT',
-            TextField: 'TEXT',
-            NumberField: 'REAL',
-            BoolField: 'INTEGER',
+
+        self.get_label = {
+            StringField : self._get_label_StringField,
+            TextField: self._get_label_TextField,
+            NumberField: self._get_label_NumberField,
+            BoolField: self._get_label_BoolField,
         }
+
+    def _get_label_StringField(self, field):
+        name = 'TEXT'
+        name += ''.join(['(', str(field.str_len), ')'])
+
+        if field.is_pk:
+            name += ' PRIMARY KEY'
+
+        return name
+
+    def _get_label_TextField(self, field):
+        name = 'TEXT'
+
+        if field.is_pk:
+            name += ' PRIMARY KEY'
+
+        return name
+
+    def _get_label_NumberField(self, field):
+        name = 'INTEGER'
+        name += ''.join(['(', str(field.size), ')'])
+
+        if field.is_pk:
+            name += ' PRIMARY KEY'
+
+        if field.auto_inc:
+            name += ' AUTOINCREMENT'
+
+        return name
+
+    def _get_label_BoolField(self, field):
+        name = 'INTEGER'
+
+        if field.is_pk:
+            name += ' PRIMARY KEY'
+
+        return name
 
     def connect(self):
         '''建链函数
@@ -191,10 +229,13 @@ class SqliteConnection(object):
 
         Raises:     无
         '''
-        if not type(field) in self.type_map:
+        if not type(field) in self.get_label:
             log_error("unkown field type({}).".format(type(field)))
             return ''
-        return self.type_map[type(field)]
+
+        name = self.get_label[type(field)](field)
+
+        return name
 
 class DataBaseContext(object):
     def __init__(self, connection):
@@ -371,3 +412,4 @@ def db_delete(table_name, conditions=''):
         return res
     except Exception as e:
         log_notice("delete record failed: " + str(e))
+

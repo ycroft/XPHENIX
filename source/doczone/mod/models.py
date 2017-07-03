@@ -9,8 +9,8 @@ MAX_UINT32 = 0xFFFFFFFF
 MAX_UINT64 = 0xFFFFFFFFFFFFFFFF
 
 class User(Model):
-    user_id = NumberField(size=MAX_UINT32, is_pk=True)
-    login_name = StringField(len=255)
+    user_id = NumberField(size=MAX_UINT32, auto_inc=True)
+    login_name = StringField(len=255, is_pk=True)
     password = StringField(len=32)
     nick_name = StringField(len=255)
     user_info = StringField(len=1024)

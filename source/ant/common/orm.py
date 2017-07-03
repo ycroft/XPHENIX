@@ -36,7 +36,7 @@ class Model(dict):
             'model name={}',
             'fields={}',
         ]).format(cls._table_name_, cls._field_def_)
-    
+
     def insert(self):
         with Connection():
             res = db_insert(self._table_name_, self)
@@ -90,7 +90,7 @@ class Model(dict):
             models.append(cls(**attrs))
 
         return models
-    
+
     @classmethod
     def find_one(cls, **var_dict):
         res = cls._find_result(**var_dict)
@@ -108,3 +108,4 @@ class Model(dict):
     @classmethod
     def find_with_cond(cls, **var_dict):
         pass
+

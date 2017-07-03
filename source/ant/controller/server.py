@@ -55,7 +55,7 @@ class TcpServer(SocketServer.TCPServer, Task):
     def model_init(self, models):
         for mod in models:
             if not mod.create():
-                log_exception('create db error when create table({})'.format(
+                log_emergency('create db error when create table({})'.format(
                         mod.to_str(),
                     ))
             

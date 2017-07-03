@@ -196,6 +196,9 @@ class Dispatcher(object):
 
         log_debug('get list info: {}'.format(list_info))
 
+        if len(args[list_name]) == 0:
+            return ''
+
         # 准备展开列表内容
         prepare_for_replace = {}
         for list_name, list_struct in list_info.items():
@@ -205,8 +208,8 @@ class Dispatcher(object):
 
             # 元素个数和参数信息中包含的对应列表中元素个数不一致
             # 元素名称不对应，个数对应即可，元素名称只是在模板中起提示作用
-            if len(list_struct[1]) != len(args[list_name]):
-                log_error('list({}) and args{} does not have the same length.'.format(list_name, args))
+            if len(list_struct[1]) != len(args[list_name][0]):
+                log_error('list({}) can not be found in args{}.'.format(list_name, args))
                 raise MergeResponseError()
 
             # 嵌入变量
