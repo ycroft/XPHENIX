@@ -15,6 +15,10 @@ class TemplateManager(object):
     def handle(self, request):
         log_debug('[template]:handle request: {}.'.format(str(request)))
 
+        if not request:
+            log_debug('[template]:do not request for template.')
+            return
+
         if not request.is_req_for_mod:
             request.write_response(self.scanner.generate_rsc(request.name))
 

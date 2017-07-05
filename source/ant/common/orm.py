@@ -77,7 +77,7 @@ class Model(dict):
     def find_all(cls, **var_dict):
         res = cls._find_result(**var_dict)
         if res == None or len(res) == 0:
-            return None
+            return []
 
         models = []
         for entry in res:

@@ -13,6 +13,44 @@ import ConfigParser
 import os
 import re
 
+REQ_RECORD_STACK_LEN = 5
+
+class CONFIG_FILE_SECTION_NAME:
+    URL = 'request-define'
+    VAR = 'vars'
+    TMPL = 'template'
+    CMPT = 'component'
+
+class REQ_TYPE:
+    REQ_WITH_PAGE = 0
+    REQ_WITH_RENEW = 1
+
+class RequestHistory(object):
+
+    DEFAULT_DEPTH = 5
+
+    def __init__(self, stack_depth):
+        self.dep = stack_depth
+        self.stack = [None] * stack_depth
+        self.sp = 0
+
+    def push_request(self, req_tmpl, req_cmpt):
+        self.stack[self.sp] = [req_tmpl, req_cmpt]
+        self.sp = (self.sp + 1) % self.dep
+
+    def get_prev(self):
+        ra = rb = None
+        while True:
+            sp = self.req_sp == 0 and REQ_RECORD_STACK_LEN - 1 or self.req_sp - 1
+
+            if sp == self.sp:
+                return None, None
+
+            ra, rb = self.req_stack[sp][0], self.req_stack[sp][1]
+
+            if ra and rb:
+                return ra, rb
+
 class Dispatcher(object):
     '''URL分发类型
 
@@ -23,6 +61,7 @@ class Dispatcher(object):
         tmpl: 模板适配对象（用于处理模板请求）
         cmpt: 组件适配对象（用于处理组件请求）
     '''
+
     def __init__(self, name_cfg, tmpl_adapter, cmpt_adapter):
         '''初始化
 
@@ -40,8 +79,106 @@ class Dispatcher(object):
         self.tmpl = tmpl_adapter
         self.cmpt = cmpt_adapter
 
+        self.history = RequestHistory(RequestHistory.DEFAULT_DEPTH)
+
+        self.request_type = {}
+        self.request_url_map = {}
+        self.request_tmpl_map = {}
+        self.request_cmpt_map = {}
+
+        for i, v in self.config.items(CONFIG_FILE_SECTION_NAME.URL):
+            self.request_url_map[i] = v
+        for i, v in self.config.items(CONFIG_FILE_SECTION_NAME.URL):
+            self.request_tmpl_map[i] = v
+        for i, v in self.config.items(CONFIG_FILE_SECTION_NAME.URL):
+            self.request_cmpt_map[i] = v
+
+        for req_name, url in self.request_url_map.items():
+
+            if req_name in self.request_tmpl_map:
+                self.request_type[req_name] = REQ_TYPE.REQ_WITH_PAGE
+
+            elif (req_name not in self.request_tmpl_map) and (req_name in self.request_cmpt_map):
+                self.request_type[req_name] = REQ_TYPE.REQ_WITH_RENEW
+
+            else:
+                raise ConfigParseError()
+
+         # end of initialization
+
     def gen_request(self, path, post_args):
         '''生成html请求
+
+        解析配置文件，文件规则详见example_handler.cfg
+
+        Args:
+            path: 请求路径
+            post_args: 传入的额外参数，主要适用于POST请求
+        Returns:
+            bool: need renew page or not
+        Raises:
+            ConfigParseError: 解析配置文件错误
+        '''
+
+        aim = ''
+        sres = None
+        need_renew = False
+
+        for request, url in self.request_tmpl_map.items():
+            sres = re.search(url, path)
+
+            if not sres:
+                continue
+            
+            aim = request
+            break
+
+        if self.request_type[aim] == REQ_TYPE.REQ_WITH_PAGE:
+
+            if sres.end() != len(path):
+                rsc_name = os.path.split(path)[1]
+                self.req_tmpl = TemplateRequest(rsc_name, False)
+                self.req_cmpt = None
+                return False
+            else:
+                self.req_tmpl = TemplateRequest(self.config.get(CONFIG_FILE_SECTION_NAME.TMPL, aim))
+                self.req_cmpt = ComponentRequest(self.config.get(CONFIG_FILE_SECTION_NAME.CMPT, aim))
+                need_renew = False
+
+        elif self.request_type[aim] == REQ_TYPE.REQ_WITH_RENEW:
+
+            self.req_tmpl = None
+            self.req_cmpt = ComponentRequest(self.config.get(CONFIG_FILE_SECTION_NAME.CMPT, aim))
+            need_renew = True
+
+        else:
+            raise ConfigParseError()
+
+        if post_args:
+            if self.req_tmpl: self.req_tmpl.add_vars(post_args)
+            if self.req_cmpt: self.req_cmpt.add_vars(post_args)
+
+        if not self.config.has_option(CONFIG_FILE_SECTION_NAME.VAR, aim):
+            return
+
+        var_list = self.config.get(CONFIG_FILE_SECTION_NAME.VAR, aim).split(',')
+
+        if len(var_list) != len(sres.groups()):         # path中的参数个数和配置
+            raise ConfigParseError()                    # 中的参数个数不匹配
+
+        args = {}
+        for index, var_name in enumerate(var_list):
+            var_name = var_name.strip()                 # 处理包含在path中的
+            args[var_name] = sres.group(index + 1)      # 传入参数
+
+        if self.req_tmpl: self.req_tmpl.add_vars(args)
+        if self.req_cmpt: self.req_cmpt.add_vars(args)
+
+        return need_renew
+
+    ''' modified 2017 07 04
+    def gen_request(self, path, post_args):
+        \'\'\'生成html请求
 
         解析配置文件，文件规则详见example_handler.cfg
 
@@ -51,10 +188,10 @@ class Dispatcher(object):
         Returns: 无
         Raises:
             ConfigParseError: 解析配置文件错误
-        '''
+        \'\'\'
         rsc_name = ''
 
-        for k, v in self.config.items('page'):
+        for k, v in self.config.items(CONFIG_FILE_SECTION_NAME.URL):
             sres = re.search(v, path)
             if not sres:
                 continue
@@ -71,17 +208,17 @@ class Dispatcher(object):
         if rsc_name == '':                              # 请求资源不存在
             raise TemplateWithoutNameError()
 
-        self.req_tmpl = TemplateRequest(self.config.get('template', rsc_name))
-        self.req_cmpt = ComponentRequest(self.config.get('component', rsc_name))
+        self.req_tmpl = TemplateRequest(self.config.get(CONFIG_FILE_SECTION_NAME.TMPL, rsc_name))
+        self.req_cmpt = ComponentRequest(self.config.get(CONFIG_FILE_SECTION_NAME.CMPT, rsc_name))
 
         if post_args:
             self.req_tmpl.add_vars(post_args)
             self.req_cmpt.add_vars(post_args)
 
-        if not self.config.has_option('var_list', rsc_name):
+        if not self.config.has_option(CONFIG_FILE_SECTION_NAME.VAR, rsc_name):
             return
 
-        var_list = self.config.get('var_list', rsc_name).split(',')
+        var_list = self.config.get(CONFIG_FILE_SECTION_NAME.VAR, rsc_name).split(',')
 
         if len(var_list) != len(sres.groups()):         # path中的参数个数和配置
             raise ConfigParseError()                    # 中的参数个数不匹配
@@ -93,6 +230,7 @@ class Dispatcher(object):
 
         self.req_tmpl.add_vars(args)
         self.req_cmpt.add_vars(args)
+    '''
     
     def _proc_vars(self, html, args):
         '''处理html中嵌入的变量
@@ -486,10 +624,25 @@ class Dispatcher(object):
         '''
         log_debug('handle path({}) with post({})'.format(path, post_args))
 
-        self.gen_request(path, post_args)
+        if self.gen_request(path, post_args):
+            self.tmpl.handle(self.req_tmpl)
+            self.cmpt.handle(self.req_cmpt)
 
-        self.tmpl.handle(self.req_tmpl)
-        self.cmpt.handle(self.req_cmpt)
+            prev_tmpl_req, prev_cmpt_req = self.history.get_prev()
+
+            if prev_tmpl_req and prev_cmpt_req:
+                self.req_tmpl = prev_tmpl_req
+                self.req_cmpt = prev_cmpt_req
+                self.tmpl.handle(prev_tmpl_req)
+                self.cmpt.handle(prev_cmpt_req)
+            else:
+                raise Exception() # TODO request for 404
+
+        else:
+            self.tmpl.handle(self.req_tmpl)
+            self.cmpt.handle(self.req_cmpt)
+
+        self.history.push_request(self.req_tmpl, self.req_cmpt)
 
     def get_response_text(self):
 

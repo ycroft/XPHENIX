@@ -10,32 +10,33 @@ from ant.common.error import *
 from ant.common.log import *
 
 class DataBaseField(object):
-    def __init__(self, is_pk):
-        self.is_pk = False
+    def __init__(self, args):
+        self.is_pk = args.get('is_pk', False)
+        self.is_unique = args.get('is_unique', False)
         pass
 
 class StringField(DataBaseField):
     def __init__(self, **args):
-        DataBaseField.__init__(self, args.get('is_pk', False))
+        DataBaseField.__init__(self, args)
         self.str_len = args.get('len', 255)
 
 class TextField(DataBaseField):
     def __init__(self, **args):
-        DataBaseField.__init__(self, args.get('is_pk', False))
+        DataBaseField.__init__(self, args)
 
 class NumberField(DataBaseField):
     def __init__(self, **args):
-        DataBaseField.__init__(self, args.get('is_pk', False))
+        DataBaseField.__init__(self, args)
         self.size = args.get('size', 255)
         self.auto_inc = args.get('auto_inc', False)
 
 class BoolField(DataBaseField):
     def __init__(self, **args):
-        DataBaseField.__init__(self, args.get('is_pk', False))
+        DataBaseField.__init__(self, args)
 
 class DateField(DataBaseField):
     def __init__(self, **args):
-        DataBaseField.__init__(self, args.get('is_pk', False))
+        DataBaseField.__init__(self, args)
         self.date_type = args.get('data_type', 'DATA')
 
 class StubConnection(object):
@@ -119,40 +120,46 @@ class SqliteConnection(object):
             BoolField: self._get_label_BoolField,
         }
 
-    def _get_label_StringField(self, field):
-        name = 'TEXT'
-        name += ''.join(['(', str(field.str_len), ')'])
+    def _get_label_common_attr(self, field):
+        name = ''
 
         if field.is_pk:
             name += ' PRIMARY KEY'
+
+        if field.is_unique:
+            name += ' UNIQUE'
+
+        return name
+
+    def _get_label_StringField(self, field):
+        name = 'CHAR'
+        name += ''.join(['(', str(field.str_len), ')'])
+
+        name += self._get_label_common_attr(field)
 
         return name
 
     def _get_label_TextField(self, field):
         name = 'TEXT'
 
-        if field.is_pk:
-            name += ' PRIMARY KEY'
+        name += self._get_label_common_attr(field)
 
         return name
 
     def _get_label_NumberField(self, field):
         name = 'INTEGER'
-        name += ''.join(['(', str(field.size), ')'])
 
-        if field.is_pk:
-            name += ' PRIMARY KEY'
+        #if field.auto_inc:
+        #    name += ' autoincrement'
 
-        if field.auto_inc:
-            name += ' AUTOINCREMENT'
+        name += self._get_label_common_attr(field)
 
         return name
 
     def _get_label_BoolField(self, field):
         name = 'INTEGER'
 
-        if field.is_pk:
-            name += ' PRIMARY KEY'
+        name += self._get_label_common_attr(field)
 
         return name
 
