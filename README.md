@@ -72,7 +72,7 @@
 python stub_server.py
 ```
 
-* 可访问 *http://127.0.0.1:8888/doczone/login* 修改代码进行测试和实验
+* 可访问 *http://127.0.0.1:8888/doczone/login/signin/* 修改代码进行测试和实验
 
 * 桩服务器没有硬狗，不会导致系统重启
 
