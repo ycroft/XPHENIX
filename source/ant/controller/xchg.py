@@ -15,9 +15,29 @@ import ConfigParser
 import os
 import re
 
-class ACTION(object):
-    REDIRECT = 0
-    NORMAL = 1
+import math
+
+class ACTION:
+    REDIRECT = 1
+    NORMAL = 2
+    SET_COOKIE = 4
+
+    TYPE_NUM = 3
+
+class SrvResult(object):
+
+    def __init__(self):
+        self.action_map = ACTION.NORMAL
+        self.ctx = [None] * ACTION.TYPE_NUM
+
+
+    def add_action(self, action, ctx):
+        self.action_map = self.action_map | action
+        self.ctx[int(math.log(action, 2))] = ctx
+
+    def fetch_ctx(self, action):
+        return self.ctx[int(math.log(action, 2))]
+
 
 class Dispatcher(object):
     '''URL分发类型
@@ -490,14 +510,20 @@ class Dispatcher(object):
         log_debug('handle path({}) with post({})'.format(path, post_args))
 
         self.gen_request(path, post_args)
+        rslt = SrvResult()
 
         self.cmpt.handle(self.req_cmpt)
 
+        if self.req_cmpt and self.req_cmpt.cookies:
+            rslt.add_action(ACTION.SET_COOKIE, self.req_cmpt.cookies)
+
         if self.req_cmpt and RSP_TYPE.REDIRECT == self.req_cmpt.rsp_type:
-            return ACTION.REDIRECT, self.req_cmpt.get_redir_path()
+            rslt.add_action(ACTION.REDIRECT, self.req_cmpt.get_redir_path())
+            return rslt
 
         self.tmpl.handle(self.req_tmpl)
-        return ACTION.NORMAL, self.get_response_text()
+        rslt.add_action(ACTION.NORMAL, self.get_response_text())
+        return rslt
 
     def get_response_text(self):
 

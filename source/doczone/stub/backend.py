@@ -1,4 +1,6 @@
 
+from Cookie import SimpleCookie
+
 def handle_page_login(args):
 
     if not 'entry_type' in args:
@@ -23,9 +25,13 @@ def handle_page_login(args):
     }
 
 def handle_action_signup(args):
+    cookies = SimpleCookie()
+    cookies['session_id'] = 233
+
     return {
         'TYPE': 'redirect',
         'PATH': '/admin/',
+        'COOKIE': cookies,
     }
 
 def handle_action_signin(args):

@@ -54,6 +54,7 @@ class ComponentRequest(CommonRequest):
     def __init__(self, component_name):
         CommonRequest.__init__(self, REQ_TYPE.CMPT)
         self.name = component_name
+        self.cookies = None
 
     def write_response(self, args):
         self.response = args
@@ -64,3 +65,6 @@ class ComponentRequest(CommonRequest):
 
     def get_redir_path(self):
         return self.var_list['__REDIRECT__']
+
+    def set_cookie(self, cookie):
+        self.cookies = cookie

@@ -34,6 +34,9 @@ class ServiceManager(object):
                 request.set_redirection(response['PATH'])
             else:
                 log_error('invalid response {}', response)
+            
+            if 'COOKIE' in response:
+                request.set_cookie(response['COOKIE'])
 
             if not response:
                 log_error('return response: {}'.format(request.response.__repr__()))

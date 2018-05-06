@@ -43,20 +43,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             parsed_path = urlparse.urlparse(self.path).path
             self.dispatcher.dispatch(parsed_path)
             resp_text = self.dispatcher.get_response_text()
-            self.send_resp_header(len(resp_text))
+            self.fill_normal_header(len(resp_text))
             self.write_context(resp_text)
         except Exception as e:
             log_error("handle url error: {}".format(str(e)))
         '''
 
         parsed_path = urlparse.urlparse(self.path).path
-        action, ctx = self.dispatcher.dispatch(parsed_path)
+        result = self.dispatcher.dispatch(parsed_path)
 
-        if ACTION.NORMAL == action:
-            self.send_resp_header(len(ctx))
-            self.write_context(ctx)
-        elif ACTION.REDIRECT == action:
-            self.send_redir_header(ctx)
+        self.response_with_result(result)
     
     def do_POST(self):
         self._debug_print_context()
@@ -68,13 +64,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for k_v in [e.split('=') for e in post_data.split('&')]:
             args[k_v[0]] = k_v[1]
         
-        action, ctx = self.dispatcher.dispatch(parsed_path, args)
+        result = self.dispatcher.dispatch(parsed_path, args)
 
-        if ACTION.NORMAL == action:
-            self.send_resp_header(len(ctx))
-            self.write_context(ctx)
-        elif ACTION.REDIRECT == action:
-            self.send_redir_header(ctx)
+        self.response_with_result(result)
     
     def do_PUT(self):
         pass
@@ -94,26 +86,54 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_CONNECT(self):
         pass
 
-    def send_redir_header(self, redir_path):
+    def response_with_result(self, result):
+
+        cookie = result.fetch_ctx(ACTION.SET_COOKIE)
+
+        ctx = result.fetch_ctx(ACTION.NORMAL)
+        if ctx:
+            self.fill_normal_header(len(ctx))
+
+            if cookie:
+                self.append_cookies(cookie)
+
+            self.end_headers()
+            self.write_context(ctx)
+            return
+
+        ctx = result.fetch_ctx(ACTION.REDIRECT)
+        if ctx:
+            self.fill_redir_header(ctx)
+
+            if cookie:
+                self.append_cookies(cookie)
+
+            self.end_headers()
+            return
+        
+        log_error('response exception, reuslt error')
+
+    def fill_redir_header(self, redir_path):
         self.send_response(302)
         mime_type = self.get_mime_type()
 
         self.send_header('Location', redir_path)
         self.send_header('Content-type', mime_type + '; charset=UTF-8')
-        self.send_header('Content-length', str(obj_length))
-        self.end_headers()
+        self.send_header('Content-length', 0)
 
-    def send_resp_header(self, obj_length):
+    def fill_normal_header(self, obj_length):
 
         self.send_response(200)
         mime_type = self.get_mime_type()
 
         self.send_header('Content-type', mime_type + '; charset=UTF-8')
         self.send_header('Content-length', str(obj_length))
-        self.end_headers()
 
         log_debug('response {} with mime type {}.'.format(self.path, mime_type))
     
+    def append_cookies(self, cookie):
+        self.send_header('Set-Cookie', cookie.output(header=''))
+
     def write_context(self, response_str):
         self.wfile.write(response_str)
 
