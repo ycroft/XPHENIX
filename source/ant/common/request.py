@@ -6,10 +6,15 @@ class REQ_TYPE:
     TMPL, \
     CMPT = range(3)
 
+class RSP_TYPE:
+    NORMAL, \
+    REDIRECT = range(2)
+
 class CommonRequest(object):
 
     def __init__(self, req_type):
         self.req_type = req_type
+        self.rsp_type = RSP_TYPE.NORMAL
         self.var_list = {}
         self.response = None
     
@@ -26,11 +31,13 @@ class CommonRequest(object):
         return '; '.join([
                 'name: {}',
                 'request type: {}',
+                'response type: {}',
                 'var_list: {}',
                 'response: {}',
             ]).format(
                 self.name,
                 self.req_type,
+                self.rsp_type,
                 self.var_list,
                 self.response)
 
@@ -50,3 +57,10 @@ class ComponentRequest(CommonRequest):
 
     def write_response(self, args):
         self.response = args
+
+    def set_redirection(self, path):
+        self.rsp_type = RSP_TYPE.REDIRECT
+        self.add_vars({'__REDIRECT__' : path })
+
+    def get_redir_path(self):
+        return self.var_list['__REDIRECT__']

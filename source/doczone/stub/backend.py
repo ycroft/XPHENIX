@@ -14,20 +14,30 @@ def handle_page_login(args):
         return None
 
     return {
+        'TYPE': 'normal',
+        'VALUES': {
             'page_title': 'Welcome to Doczone !',
             'panel_title': panel_title,
             'panel_layout': panel_layout,
         }
+    }
 
 def handle_action_signup(args):
-    print args
-    pass
+    return {
+        'TYPE': 'redirect',
+        'PATH': '/admin/',
+    }
 
 def handle_action_signin(args):
-    pass
+    return {
+        'TYPE': 'redirect',
+        'PATH': '/admin/',
+    }
 
 def handle_page_control_panel(args):
     return {
+        'TYPE': 'normal',
+        'VALUES': {
             'admin_name': 'Ycroft',
             'db_user_list': [
                     [1, 'userA', '111', 'Ada', '3345'],
@@ -36,5 +46,6 @@ def handle_page_control_panel(args):
                     [4, 'userD', '4', 'Dean', '3348'],
                     [5, 'userE', '5', 'Ella', '3349'],
                 ],
-        } 
+        }
+    } 
 

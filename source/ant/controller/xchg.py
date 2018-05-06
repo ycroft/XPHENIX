@@ -3,15 +3,21 @@
 '''URL分发
 '''
 from ant.common.error import *
+from ant.common.log import *
+
 from ant.common.request import ComponentRequest
 from ant.common.request import TemplateRequest
-from ant.common.log import *
+from ant.common.request import RSP_TYPE
 
 from ant.template.mod import PATTERN
 
 import ConfigParser
 import os
 import re
+
+class ACTION(object):
+    REDIRECT = 0
+    NORMAL = 1
 
 class Dispatcher(object):
     '''URL分发类型
@@ -485,8 +491,13 @@ class Dispatcher(object):
 
         self.gen_request(path, post_args)
 
-        self.tmpl.handle(self.req_tmpl)
         self.cmpt.handle(self.req_cmpt)
+
+        if self.req_cmpt and RSP_TYPE.REDIRECT == self.req_cmpt.rsp_type:
+            return ACTION.REDIRECT, self.req_cmpt.get_redir_path()
+
+        self.tmpl.handle(self.req_tmpl)
+        return ACTION.NORMAL, self.get_response_text()
 
     def get_response_text(self):
 

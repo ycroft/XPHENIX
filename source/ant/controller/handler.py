@@ -5,6 +5,8 @@ import BaseHTTPServer
 from ant.common.log import *
 from ant.controller.mime_type import *
 
+from ant.controller.xchg import ACTION
+
 import os
 import urlparse
 
@@ -48,10 +50,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         '''
 
         parsed_path = urlparse.urlparse(self.path).path
-        self.dispatcher.dispatch(parsed_path)
-        resp_text = self.dispatcher.get_response_text()
-        self.send_resp_header(len(resp_text))
-        self.write_context(resp_text)
+        action, ctx = self.dispatcher.dispatch(parsed_path)
+
+        if ACTION.NORMAL == action:
+            self.send_resp_header(len(ctx))
+            self.write_context(ctx)
+        elif ACTION.REDIRECT == action:
+            self.send_redir_header(ctx)
     
     def do_POST(self):
         self._debug_print_context()
@@ -63,10 +68,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for k_v in [e.split('=') for e in post_data.split('&')]:
             args[k_v[0]] = k_v[1]
         
-        self.dispatcher.dispatch(parsed_path, args)
-        resp_text = self.dispatcher.get_response_text()
-        self.send_resp_header(len(resp_text))
-        self.write_context(resp_text)
+        action, ctx = self.dispatcher.dispatch(parsed_path, args)
+
+        if ACTION.NORMAL == action:
+            self.send_resp_header(len(ctx))
+            self.write_context(ctx)
+        elif ACTION.REDIRECT == action:
+            self.send_redir_header(ctx)
     
     def do_PUT(self):
         pass
@@ -85,6 +93,15 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     
     def do_CONNECT(self):
         pass
+
+    def send_redir_header(self, redir_path):
+        self.send_response(302)
+        mime_type = self.get_mime_type()
+
+        self.send_header('Location', redir_path)
+        self.send_header('Content-type', mime_type + '; charset=UTF-8')
+        self.send_header('Content-length', str(obj_length))
+        self.end_headers()
 
     def send_resp_header(self, obj_length):
 
