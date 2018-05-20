@@ -1,5 +1,6 @@
 
 from Cookie import SimpleCookie
+import datetime
 
 def handle_page_login(args):
 
@@ -25,8 +26,16 @@ def handle_page_login(args):
     }
 
 def handle_action_signup(args):
+     
+    expiration = datetime.datetime.now() + datetime.timedelta(days=30)
+
     cookies = SimpleCookie()
-    cookies['session_id'] = 233
+    cookies['session'] = 233
+    cookies['session']['path'] = "/"
+    cookies['session']['expires'] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+    cookies['ban'] = 666
+    cookies['ban']['path'] = "/"
+    cookies['ban']['expires'] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
 
     return {
         'TYPE': 'redirect',

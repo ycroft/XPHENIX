@@ -49,6 +49,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             log_error("handle url error: {}".format(str(e)))
         '''
 
+        
+        if self.headers.has_key('Cookie'):
+            print 'YYYYY', self.headers['Cookie']
+
         parsed_path = urlparse.urlparse(self.path).path
         result = self.dispatcher.dispatch(parsed_path)
 

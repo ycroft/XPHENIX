@@ -112,44 +112,59 @@ class TestDbApi(unittest.TestCase):
             res = db_select("user")
             self.assertEquals(len(res), 0)
 
+class User(Model):
+    user_id = NumberField(size=100, is_pk=True, auto_inc=True)
+    name = StringField()
+    # name = StringField(is_pk=True)
+    age = NumberField(size=100)
+
 class TestOrm(unittest.TestCase):
 
     def setUp(self):
         log_debug('testcase setup: create \'test.db\'')
         create_sqlite_engine("test.db")
+
+        User.create()
+
+        """
         with Connection():
             res = db_create_table('user', {
                 'name': StringField(len=10, is_pk=True),
                 'age': NumberField(),
             })
-
+        
         self.assertNotEquals(res, None)
+        """
 
     def tearDown(self):
         log_debug('testcase tear down: remove \'test.db\'')
         os.system('rm test.db')
 
     def test_orm_construct(self):
-        class User(Model):
-            name = StringField(is_pk=True)
-            age = NumberField(size=100)
-
         user_1 = User(name='john', age=18)
         self.assertEquals(user_1['name'], 'john')
         self.assertEquals(user_1['age'], 18)
 
     def test_orm_insert_and_get(self):
-        class User(Model):
-            name = StringField(is_pk=True)
-            age = NumberField(size=100)
 
-        user_1 = User(name='john', age=18)
-        user_1.insert()
+        user = User(name='john', age=18)
+        user.insert()
+        user = User(name='dwell', age=29)
+        user.insert()
+        user = User(name='bob', age=23)
+        user.insert()
 
         users = User.find_all(name='john')
         self.assertEquals(len(users), 1)
         self.assertEquals(users[0]['age'], 18)
 
+        users = User.find_all(name='bob')
+        self.assertEquals(len(users), 1)
+        self.assertEquals(users[0]['age'], 23)
+
         user = User.find_one(age=19)
         self.assertEquals(user, None)
+
+        user = User.find_one(age=29)
+        self.assertEquals(user['name'], 'dwell')
     

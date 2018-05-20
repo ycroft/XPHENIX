@@ -11,14 +11,19 @@ from ant.common.log import *
 
 class DataBaseField(object):
     def __init__(self, is_pk):
-        self.is_pk = False
+        self.is_pk = is_pk
         pass
+
+    def get_attr_str(self):
+        if self.is_pk:
+            return 'PRIMARY KEY'
+        else:
+            return ''
 
 class StringField(DataBaseField):
     def __init__(self, **args):
         DataBaseField.__init__(self, args.get('is_pk', False))
         self.str_len = args.get('len', 255)
-        self.str_le = len
 
 class TextField(DataBaseField):
     def __init__(self, **args):
@@ -28,6 +33,16 @@ class NumberField(DataBaseField):
     def __init__(self, **args):
         DataBaseField.__init__(self, args.get('is_pk', False))
         self.size = args.get('size', 255)
+        self.auto_inc = args.get('auto_inc', False)
+
+    def get_attr_str(self):
+        res = ''
+
+        res = res + DataBaseField.get_attr_str(self) + ' '
+        if self.auto_inc:
+            res = res + 'AUTOINCREMENT' + ' '
+
+        return res
 
 class BoolField(DataBaseField):
     def __init__(self, **args):
@@ -114,7 +129,7 @@ class SqliteConnection(object):
         self.type_map = {
             StringField : 'TEXT',
             TextField: 'TEXT',
-            NumberField: 'REAL',
+            NumberField: 'INTEGER',
             BoolField: 'INTEGER',
         }
 
@@ -272,14 +287,16 @@ def destroy_engine():
 @with_connection
 def db_create_table(table_name, field_dict):
     global connection_context
-    name_pair = [(name, connection_context.get_type_name(field)) for name, field in field_dict.items()]
+    name_pair = [(name,
+        connection_context.get_type_name(field),
+        field.get_attr_str()) for name, field in field_dict.items()]
 
     for e in name_pair:
         if e[1] == '':
             log_error('get db type name error.')
             return
 
-    str_fields = ', '.join([e[0] + ' ' +  e[1] for e in name_pair])
+    str_fields = ', '.join([e[0] + ' ' +  e[1] + ' ' + e[2] for e in name_pair])
     sql = "CREATE TABLE IF NOT EXISTS {} ({})".format(table_name, str_fields)
 
     log_debug("execute sql(\"{}\")".format(sql))
